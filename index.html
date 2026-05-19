@@ -12,51 +12,47 @@
 
     <!-- ================================================================
          ⚡ 素材配置 / Asset Configuration ⚡
-         你只需要把下面的路径改成你自己的图片/视频文件即可。
-         Replace the paths below with your own image/video files.
+         你只需要把下面的文件名改成你自己的图片/视频文件即可。
          ================================================================
 
-         【图片 / Images】 建议尺寸: 1920×1080 或更大
-         【Videos】        建议尺寸: 1920×1080, MP4 格式, H.264 编码
+         把所有图片文件放在和 index.html 同级的文件夹里（比如 images/ 文件夹也可以，
+         如果是子文件夹，记得在路径前加上文件夹名，如 "images/hero-poster.jpg"）。
 
-         英雄区 Hero:
-           IMG_HERO_POSTER  →  英雄区视频的封面图 (your-image.jpg)
-           VID_HERO         →  英雄区背景视频 (your-video.mp4)
+         ==================== 图片清单 (共24张) ====================
+         编号  文件名             出现在哪里
+         ──────────────────────────────────────────────────────
+         01    hero-poster.jpg    英雄区 Hero — 视频的封面图
+         02    intro.jpg          About Dasein 右侧
+         03    alps.jpg           目的地卡片 - 瑞士 Alps
+         04    iceland.jpg        目的地卡片 - 冰岛极光
+         05    maldives.jpg       目的地卡片 - 马尔代夫
+         06    japan.jpg          目的地卡片 - 日本樱花
+         07    usa.jpg            目的地卡片 - 美国羚羊谷
+         08    bali.jpg           目的地卡片 - 巴厘岛梯田
+         09    morocco.jpg        目的地卡片 - 摩洛哥
+         10    waterfall.jpg      特色区 - Hidden Gems 瀑布
+         11    santorini.jpg      Moments - 圣托里尼日落
+         12    kyoto.jpg          Moments - 京都晨雾
+         13    nazare.jpg         Moments - 纳扎雷海浪
+         14    serengeti.jpg      Moments - 塞伦盖蒂
+         15    cover.jpg          引用封面 Quote Cover
+         16    photography.jpg    特色区 - Photography
+         17    gallery-1.jpg      画廊 1
+         18    gallery-2.jpg      画廊 2 (tall)
+         19    gallery-3.jpg      画廊 3
+         20    gallery-4.jpg      画廊 4
+         21    gallery-5.jpg      画廊 5
+         22    gallery-6.jpg      画廊 6 (tall)
+         23    gallery-7.jpg      画廊 7
+         24    gallery-8.jpg      画廊 8
 
-         简介区 Intro:
-           IMG_INTRO_POSTER →  简介区视频封面 (your-image.jpg)
-           VID_INTRO        →  简介区右侧视频 (your-video.mp4)
+         ==================== 视频清单 (共1个) ====================
+         hero-bg.mp4             英雄区 Hero — 全屏背景视频
 
-         目的地卡片 Destination Cards (7个):
-           IMG_SLIDER_1     →  瑞士 Alps (your-image.jpg)
-           VID_SLIDER_2     →  冰岛 极光 (your-video.mp4)
-           IMG_SLIDER_3     →  马尔代夫 (your-image.jpg)
-           IMG_SLIDER_4     →  日本 樱花 (your-image.jpg)
-           IMG_SLIDER_5     →  美国 羚羊谷 (your-image.jpg)
-           VID_SLIDER_6     →  巴厘岛 梯田 (your-video.mp4)
-           IMG_SLIDER_7     →  摩洛哥 (your-image.jpg)
-
-         特色区 Featured Split:
-           IMG_FEATURED_1   →  隐藏的瀑布 (your-image.jpg)
-           IMG_FEATURED_2   →  摄影作品 (your-image.jpg)
-
-         视频瞬间 Moments (4个):
-           VID_MOMENT_1     →  圣托里尼日落 (your-video.mp4)
-           VID_MOMENT_2     →  京都晨雾 (your-video.mp4)
-           VID_MOMENT_3     →  纳扎雷海浪 (your-video.mp4)
-           VID_MOMENT_4     →  塞伦盖蒂野生动物 (your-video.mp4)
-
-         封面区 Cover:
-           VID_COVER        →  封面背景视频 (your-video.mp4)
-           IMG_COVER_POSTER →  封面视频封面 (your-image.jpg)
-
-         画廊 Gallery (8张):
-           IMG_GALLERY_1~8  →  画廊图片 (your-image.jpg)
-
-         社交链接 Social Links:
-           URL_WHATSAPP     →  https://wa.me/yournumber
-           URL_INSTAGRAM    →  https://instagram.com/yourpage
-           URL_WECHAT       →  # (改成你的微信链接)
+         ==================== 社交链接 ====================
+         WhatsApp  →  https://wa.me/yournumber   (yournumber 改成你的手机号)
+         Instagram →  https://instagram.com/yourpage  (yourpage 改成你的用户名)
+         WeChat    →  # (改成你的微信链接/二维码页面)
          ================================================================ -->
 
 </head>
@@ -78,13 +74,14 @@
         </button>
     </nav>
 
-    <!-- ==================== 英雄区 / Hero ====================
-         把你的背景视频路径替换到下方 src 和 poster。
+    <!-- ==================== 英雄区 Hero ====================
+         背景视频 + 封面图。替换下方 src 和 poster 的路径。
+         图片: hero-poster.jpg | 视频: hero-bg.mp4
     -->
     <section class="hero">
         <div class="hero-bg">
-            <video autoplay muted loop playsinline poster="your-image.jpg">
-                <source src="your-video.mp4" type="video/mp4">
+            <video autoplay muted loop playsinline poster="hero-poster.jpg">
+                <source src="hero-bg.mp4" type="video/mp4">
             </video>
         </div>
         <div class="hero-overlay"></div>
@@ -107,8 +104,8 @@
         </div>
     </section>
 
-    <!-- ==================== 简介区 / Intro ====================
-         替换右侧视频和封面图。
+    <!-- ==================== 简介区 Intro ====================
+         图片: intro.jpg
     -->
     <section>
         <div class="container-wide intro-grid">
@@ -123,16 +120,15 @@
                 </p>
             </div>
             <div class="intro-visual reveal">
-                <video autoplay muted loop playsinline poster="your-image.jpg">
-                    <source src="your-video.mp4" type="video/mp4">
-                </video>
+                <img src="intro.jpg" alt="About Dasein" loading="lazy">
             </div>
         </div>
     </section>
 
-    <!-- ==================== 目的地卡片滑块 / Destination Slider ====================
-         替换下方每个卡片中的图片/视频路径。
-         卡片结构: 图片(或视频) + 标题 + 地点
+    <!-- ==================== 目的地卡片 / Destination Slider ====================
+         共 7 张卡片，每张图片不同。
+         图片清单: alps.jpg, iceland.jpg, maldives.jpg, japan.jpg,
+                   usa.jpg, bali.jpg, morocco.jpg
     -->
     <section class="slider-section" id="destinations">
         <div class="slider-header">
@@ -143,74 +139,70 @@
             <span class="slider-hint">Drag →</span>
         </div>
         <div class="slider-track" id="sliderTrack">
-            <!-- 卡片 1: 瑞士 Alps -->
+            <!-- 卡片 1: 瑞士 Alps → alps.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <img src="your-image.jpg" alt="Swiss Alps" loading="lazy">
+                    <img src="alps.jpg" alt="Swiss Alps" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Swiss Alps</h3>
                     <p>Switzerland</p>
                 </div>
             </div>
-            <!-- 卡片 2: 冰岛极光 -->
+            <!-- 卡片 2: 冰岛极光 → iceland.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="iceland.jpg" alt="Northern Lights" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Northern Lights</h3>
                     <p>Iceland</p>
                 </div>
             </div>
-            <!-- 卡片 3: 马尔代夫 -->
+            <!-- 卡片 3: 马尔代夫 → maldives.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <img src="your-image.jpg" alt="Maldives" loading="lazy">
+                    <img src="maldives.jpg" alt="Maldives" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>White Sands</h3>
                     <p>Maldives</p>
                 </div>
             </div>
-            <!-- 卡片 4: 日本樱花 -->
+            <!-- 卡片 4: 日本樱花 → japan.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <img src="your-image.jpg" alt="Japan" loading="lazy">
+                    <img src="japan.jpg" alt="Japan" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Sakura Season</h3>
                     <p>Japan</p>
                 </div>
             </div>
-            <!-- 卡片 5: 美国羚羊谷 -->
+            <!-- 卡片 5: 美国羚羊谷 → usa.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <img src="your-image.jpg" alt="USA" loading="lazy">
+                    <img src="usa.jpg" alt="USA" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Antelope Canyon</h3>
                     <p>United States</p>
                 </div>
             </div>
-            <!-- 卡片 6: 巴厘岛梯田 -->
+            <!-- 卡片 6: 巴厘岛梯田 → bali.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="bali.jpg" alt="Bali" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Rice Terraces</h3>
                     <p>Bali, Indonesia</p>
                 </div>
             </div>
-            <!-- 卡片 7: 摩洛哥 -->
+            <!-- 卡片 7: 摩洛哥 → morocco.jpg -->
             <div class="slider-card reveal">
                 <div class="slider-card-media">
-                    <img src="your-image.jpg" alt="Morocco" loading="lazy">
+                    <img src="morocco.jpg" alt="Morocco" loading="lazy">
                 </div>
                 <div class="slider-card-body">
                     <h3>Golden Dunes</h3>
@@ -221,7 +213,7 @@
     </section>
 
     <!-- ==================== 特色区 1: Hidden Gems ====================
-         替换右侧图片路径。
+         图片: waterfall.jpg
     -->
     <section>
         <div class="container-wide featured-split reveal">
@@ -232,61 +224,51 @@
                 <p>Let your curiosity guide you off the beaten path, where every turn reveals a new wonder.</p>
             </div>
             <div class="image-side">
-                <img src="your-image.jpg" alt="Hidden waterfall" loading="lazy">
+                <img src="waterfall.jpg" alt="Hidden waterfall" loading="lazy">
             </div>
         </div>
     </section>
 
-    <!-- ==================== 视频瞬间 / Video Moments ====================
-         替换下方每个视频路径和标签文字。
+    <!-- ==================== 瞬间 Moments ====================
+         4 张图片，对应 santorini.jpg, kyoto.jpg, nazare.jpg, serengeti.jpg
     -->
     <section id="moments">
         <div class="container-wide">
             <div class="reveal">
                 <p class="section-label">Moments</p>
                 <h2 class="section-title"><span class="text-accent">Moving pictures</span></h2>
-                <p class="section-desc">Short cinematic clips from around the world. Let these moments transport you.</p>
+                <p class="section-desc">Beautiful captures from around the world. Let these images transport you.</p>
             </div>
             <div class="moments-grid">
-                <!-- 视频 1: 圣托里尼日落 -->
+                <!-- 圣托里尼日落 → santorini.jpg -->
                 <div class="moment-card reveal">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="santorini.jpg" alt="Sunset over Santorini" loading="lazy">
                     <span class="moment-label">Sunset over Santorini</span>
                 </div>
-                <!-- 视频 2: 京都晨雾 -->
+                <!-- 京都晨雾 → kyoto.jpg -->
                 <div class="moment-card reveal">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="kyoto.jpg" alt="Misty mornings, Kyoto" loading="lazy">
                     <span class="moment-label">Misty mornings, Kyoto</span>
                 </div>
-                <!-- 视频 3: 纳扎雷海浪 -->
+                <!-- 纳扎雷海浪 → nazare.jpg -->
                 <div class="moment-card reveal">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="nazare.jpg" alt="Waves at Nazaré" loading="lazy">
                     <span class="moment-label">Waves at Nazaré</span>
                 </div>
-                <!-- 视频 4: 塞伦盖蒂 -->
+                <!-- 塞伦盖蒂 → serengeti.jpg -->
                 <div class="moment-card reveal">
-                    <video autoplay muted loop playsinline poster="your-image.jpg">
-                        <source src="your-video.mp4" type="video/mp4">
-                    </video>
+                    <img src="serengeti.jpg" alt="Wildlife of the Serengeti" loading="lazy">
                     <span class="moment-label">Wildlife of the Serengeti</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ==================== 引用封面 / Quote Cover ====================
-         替换背景视频路径。
+    <!-- ==================== 引用封面 Quote Cover ====================
+         图片: cover.jpg
     -->
     <section class="cover-section">
-        <video autoplay muted loop playsinline poster="your-image.jpg">
-            <source src="your-video.mp4" type="video/mp4">
-        </video>
+        <img src="cover.jpg" alt="Nature backdrop">
         <div class="cover-overlay"></div>
         <div class="cover-content reveal">
             <h2>Nature does not hurry, yet everything is <span class="text-accent">accomplished</span></h2>
@@ -295,7 +277,7 @@
     </section>
 
     <!-- ==================== 特色区 2: Photography ====================
-         替换右侧图片路径。
+         图片: photography.jpg
     -->
     <section>
         <div class="container-wide featured-split reverse reveal">
@@ -306,13 +288,14 @@
                 <p>Each image is a window into a world waiting to be discovered.</p>
             </div>
             <div class="image-side">
-                <img src="your-image.jpg" alt="Photography" loading="lazy">
+                <img src="photography.jpg" alt="Photography" loading="lazy">
             </div>
         </div>
     </section>
 
-    <!-- ==================== 画廊 / Gallery ====================
-         替换下方所有图片路径。加 tall 类的图片会占两行高度。
+    <!-- ==================== 画廊 Gallery ====================
+         8 张图片: gallery-1.jpg ~ gallery-8.jpg
+         gallery-2.jpg 和 gallery-6.jpg 加了 tall 类，会占两行高度
     -->
     <section id="gallery">
         <div class="container-wide">
@@ -321,20 +304,20 @@
                 <h2 class="section-title">A visual <span class="text-accent">diary</span></h2>
             </div>
             <div class="gallery-grid">
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item tall reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item tall reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
-                <div class="gallery-item reveal"><img src="your-image.jpg" alt="" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-1.jpg" alt="Gallery 1" loading="lazy"></div>
+                <div class="gallery-item tall reveal"><img src="gallery-2.jpg" alt="Gallery 2" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-3.jpg" alt="Gallery 3" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-4.jpg" alt="Gallery 4" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-5.jpg" alt="Gallery 5" loading="lazy"></div>
+                <div class="gallery-item tall reveal"><img src="gallery-6.jpg" alt="Gallery 6" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-7.jpg" alt="Gallery 7" loading="lazy"></div>
+                <div class="gallery-item reveal"><img src="gallery-8.jpg" alt="Gallery 8" loading="lazy"></div>
             </div>
         </div>
     </section>
 
-    <!-- ==================== 页脚 / Footer ====================
-         替换社交链接: WhatsApp号码、Instagram页面、微信链接。
+    <!-- ==================== 页脚 Footer ====================
+         社交链接修改见下方。
     -->
     <footer class="footer" id="contact">
         <div class="footer-grid">
@@ -342,7 +325,7 @@
                 <div class="logo">Dasein</div>
                 <p>Curated visual journeys through the world's most breathtaking landscapes and hidden gems.</p>
                 <div class="social-bar">
-                    <!-- WhatsApp — 把 yournumber 改成你的手机号 -->
+                    <!-- WhatsApp — 把 yournumber 改成你的手机号，含国家代码。如 https://wa.me/8613800138000 -->
                     <a href="https://wa.me/yournumber" target="_blank" title="WhatsApp" aria-label="WhatsApp">
                         <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </a>
