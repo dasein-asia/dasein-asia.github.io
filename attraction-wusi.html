@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五四广场 · 奥帆中心 | 青岛</title>
+    <meta name="description" content="青岛五四广场 — 纪念五四运动的城市地标，奥帆中心的璀璨夜景。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+            color: #4a4a5a;
+            background: #ffffff;
+            line-height: 1.8;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+        img { display: block; max-width: 100%; height: auto; }
+        a { text-decoration: none; color: inherit; }
+
+        :root {
+            --blue-deep: #1a3a5c;
+            --blue-mid: #2d6a9f;
+            --blue-light: #5b9bd5;
+            --warm: #d4a373;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+        }
+
+        /* ===== Page Transition ===== */
+        .page-transition {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--blue-deep);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+        .page-transition.active { opacity: 1; }
+
+        /* ===== Back Button ===== */
+        .back-bar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex; align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; font-weight: 500;
+            color: var(--blue-mid);
+            cursor: pointer;
+            transition: gap 0.2s;
+            background: none; border: none; font-family: inherit;
+        }
+        .back-btn:hover { gap: 0.75rem; }
+        .back-arrow {
+            display: inline-block; width: 20px; height: 20px;
+            border-left: 2px solid var(--blue-mid);
+            border-bottom: 2px solid var(--blue-mid);
+            transform: rotate(45deg);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            position: relative; height: 60vh; min-height: 400px;
+            overflow: hidden;
+            background: url('photos/五四广场·奥帆.jpg') center/cover;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
+        }
+        .hero-content {
+            position: absolute; bottom: 3rem; left: 2rem; right: 2rem;
+            z-index: 1; color: #fff;
+            max-width: 700px;
+            animation: fadeUp 0.8s ease-out;
+        }
+        .hero-breadcrumb {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+            opacity: 0.7; margin-bottom: 0.5rem;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, #f8ede0, #d4a373);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1rem; opacity: 0.8;
+            max-width: 500px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Content ===== */
+        .content { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .section { margin-bottom: 3rem; }
+        .section:last-child { margin-bottom: 0; }
+        .section-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.15em;
+            color: var(--blue-light);
+            margin-bottom: 0.75rem;
+        }
+        .section h2 {
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--blue-deep);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        .section p {
+            color: #5a5a6a;
+            margin-bottom: 1rem;
+            line-height: 1.9;
+        }
+        .section p:last-child { margin-bottom: 0; }
+
+        /* ===== Info Grid ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(0,0,0,0.06);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .info-item .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .info-item .label { font-size: 0.7rem; color: #8e8e9a; margin-bottom: 0.25rem; }
+        .info-item .value { font-size: 0.9rem; font-weight: 600; color: var(--blue-deep); }
+
+        /* ===== Photo Gallery ===== */
+        .gallery-grid-detail {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .gallery-grid-detail .photo {
+            border-radius: var(--radius);
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .gallery-grid-detail .photo:hover { transform: scale(1.02); }
+        .gallery-grid-detail .photo img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== Timeline ===== */
+        .timeline-detail { margin-top: 1.5rem; }
+        .timeline-detail .item {
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--blue-light);
+            padding-bottom: 1.5rem;
+            position: relative;
+        }
+        .timeline-detail .item:last-child { padding-bottom: 0; }
+        .timeline-detail .item::before {
+            content: ''; position: absolute;
+            left: -5px; top: 4px;
+            width: 8px; height: 8px;
+            background: var(--blue-mid);
+            border-radius: 50%;
+        }
+        .timeline-detail .item .time {
+            font-size: 0.7rem; font-weight: 600; color: var(--blue-light);
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        .timeline-detail .item p {
+            font-size: 0.88rem; margin-top: 0.3rem;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: var(--blue-deep);
+            color: rgba(255,255,255,0.7);
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+        .footer p { font-size: 0.8rem; line-height: 1.6; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .gallery-grid-detail { grid-template-columns: 1fr; }
+            .hero { height: 50vh; min-height: 350px; }
+            .hero-content { bottom: 2rem; left: 1.5rem; right: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-transition" id="pageTransition"></div>
+
+    <!-- ===== 返回栏 ===== -->
+    <div class="back-bar">
+        <button class="back-btn" onclick="goBack()">
+            <span class="back-arrow"></span>
+            返回青岛主页
+        </button>
+    </div>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-breadcrumb">Qingdao · 市南区</div>
+            <h1>五四广场 · <span class="accent">奥帆中心</span></h1>
+            <p>红色的「五月的风」雕塑是这座城市的精神象征，奥运帆船中心的璀璨灯火点亮了青岛的夜空。</p>
+        </div>
+    </section>
+
+    <!-- ===== 内容 ===== -->
+    <div class="content">
+
+        <!-- 简介 -->
+        <div class="section">
+            <p class="section-label">Introduction</p>
+            <h2>从历史深处驶向蔚蓝未来</h2>
+            <p>五四广场，因五四运动而得名。1919年，巴黎和会上将青岛主权转让给日本的消息传回国内，点燃了五四运动的烈火。为纪念这一划时代的历史事件，青岛市政府将新建的城市广场命名为「五四广场」。广场上高达30米的红色雕塑「五月的风」螺旋上升、如火如炬，象征着爱国精神与民族力量生生不息，是青岛最醒目的城市地标。</p>
+            <p>与五四广场相连的青岛奥帆中心，是2008年北京奥运会帆船比赛的举办地。碧海之上白帆点点，现代化的场馆建筑与大海完美融合。奥运会后，这里成为集运动、休闲、商业于一体的滨海度假区，也是青岛国际啤酒节的主会场之一。每年夏季，来自世界各地的帆船爱好者和游客汇聚于此，感受青岛「帆船之都」的独特魅力。</p>
+            <p>夜晚的五四广场与奥帆中心别有一番风情。夕阳西下时，广场上华灯初上，「五月的风」在灯光映照下格外夺目。奥帆中心的沿海建筑群点亮璀璨灯光，与海面上的倒影交相辉映。情人坝上的灯塔发出温暖光芒，整个海湾如梦如幻、流光溢彩。</p>
+        </div>
+
+        <!-- 实用信息 -->
+        <div class="section">
+            <p class="section-label">Visitor Info</p>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="icon">🕐</div>
+                    <div class="label">建议时长</div>
+                    <div class="value">1.5-2小时</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">🎫</div>
+                    <div class="label">门票</div>
+                    <div class="value">免费</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">📍</div>
+                    <div class="label">地址</div>
+                    <div class="value">市南区</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">🚗</div>
+                    <div class="label">距青岛站</div>
+                    <div class="value">7km · 15分钟车程</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">⏰</div>
+                    <div class="label">最佳季节</div>
+                    <div class="value">夏季（夜景）</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">📸</div>
+                    <div class="label">拍照机位</div>
+                    <div class="value">情人坝</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图集 -->
+        <div class="section">
+            <p class="section-label">Gallery</p>
+            <h2>光影海湾</h2>
+            <div class="gallery-grid-detail">
+                <div class="photo"><img src="photos/五四广场·奥帆-3.jpg" alt="五四广场夜景" loading="lazy"></div>
+                <div class="photo"><img src="photos/五四广场·奥帆中心-2.jpg" alt="奥帆中心" loading="lazy"></div>
+                <div class="photo"><img src="photos/奥帆中心.webp" alt="奥帆中心全景" loading="lazy"></div>
+            </div>
+            <!-- 🔵 更多五四广场·奥帆中心照片可添加在此处 -->
+        </div>
+
+        <!-- 亮点推荐 -->
+        <div class="section">
+            <p class="section-label">Highlights</p>
+            <h2>不可错过的体验</h2>
+
+            <div class="timeline-detail">
+                <div class="item">
+                    <span class="time">🔥 五月的风</span>
+                    <p>五四广场的标志性雕塑，高30米，直径27米，由中国著名雕塑家黄震设计。螺旋上升的红色造型象征「风」的力量与「火」的热情，表达了对五四精神的继承与发扬。广场正对市政府大楼，是青岛城市形象的代表。</p>
+                </div>
+                <div class="item">
+                    <span class="time">⛵ 奥帆中心</span>
+                    <p>2008年北京奥运会帆船比赛场地，拥有世界一流的帆船赛事设施。主防波堤长534米，堤上矗立着奥运火炬塔。平时可以体验帆船出海、乘坐游艇观光，感受乘风破浪的快感。每年5月这里还会举办国际帆船周活动。</p>
+                </div>
+                <div class="item">
+                    <span class="time">💑 情人坝</span>
+                    <p>奥帆中心最浪漫的地方——一条深入海中的防波堤，尽头矗立着一座白色灯塔。傍晚时分，情侣们三三两两坐在坝上，看夕阳沉入海平面，听海浪轻拍堤岸。夜幕降临后，灯塔亮起暖黄色的光芒，整个海湾的灯光秀尽收眼底，是求婚和拍照的绝佳地点。</p>
+                </div>
+                <div class="item">
+                    <span class="time">🌃 城市灯光秀</span>
+                    <p>每晚19:00-21:00（夏季延长至22:00），五四广场周边的高楼大厦会上演绚丽多彩的灯光秀。灯光在建筑群间流动变幻，倒映在海面上流光溢彩。最佳观赏点位于五四广场中轴线，或情人坝回望海湾。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游玩建议 -->
+        <div class="section">
+            <p class="section-label">Tips</p>
+            <h2>游玩建议</h2>
+            <div class="timeline-detail">
+                <div class="item">
+                    <span class="time">📷 最佳拍照</span>
+                    <p>日落前1小时到情人坝，可以拍到金色夕阳下的灯塔剪影。天黑后拍摄城市灯光秀与海面倒影最为震撼。使用广角镜头从情人坝回拍奥帆中心，城市天际线尽收画面。</p>
+                </div>
+                <div class="item">
+                    <span class="time">🍴 餐饮推荐</span>
+                    <p>奥帆中心周边有大量海景餐厅和酒吧，既有高端海鲜餐厅也有平价小吃。推荐尝试海景露台用餐，边品尝海鲜边欣赏海湾夜景。五四广场地下有大型商业美食广场，选择丰富。</p>
+                </div>
+                <div class="item">
+                    <span class="time">🚶 周边联动</span>
+                    <p>五四广场沿滨海步行道向东可直达奥帆中心（步行15分钟）。向西可连接第三海水浴场和八大关。建议安排傍晚前往，先逛五四广场，沿木栈道走到奥帆中心，在情人坝等候日落和灯光秀。</p>
+                </div>
+                <div class="item">
+                    <span class="time">⚠️ 注意事项</span>
+                    <p>夏季夜晚游客密集，注意保管随身物品。海边风大，即使夏季夜晚也建议带一件外套。灯光秀受天气影响可能调整时间，建议提前查询当日安排。</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <p>© 2026 青岛旅游指南 · <span style="cursor:pointer;color:var(--blue-light);" onclick="goBack()">返回主页</span></p>
+    </footer>
+
+    <script>
+        const pt = document.getElementById('pageTransition');
+        function goBack() {
+            pt.classList.add('active');
+            setTimeout(() => { window.location.href = 'qingdao.html'; }, 450);
+        }
+    </script>
+</body>
+</html>

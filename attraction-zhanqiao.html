@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>栈桥 · 回澜阁 | 青岛</title>
+    <meta name="description" content="青岛栈桥 — 青岛的标志性建筑，回澜阁与海鸥的百年守望。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+            color: #4a4a5a;
+            background: #ffffff;
+            line-height: 1.8;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+        img { display: block; max-width: 100%; height: auto; }
+        a { text-decoration: none; color: inherit; }
+
+        :root {
+            --blue-deep: #1a3a5c;
+            --blue-mid: #2d6a9f;
+            --blue-light: #5b9bd5;
+            --warm: #d4a373;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+        }
+
+        /* ===== Page Transition ===== */
+        .page-transition {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--blue-deep);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+        .page-transition.active { opacity: 1; }
+
+        /* ===== Back Button ===== */
+        .back-bar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex; align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; font-weight: 500;
+            color: var(--blue-mid);
+            cursor: pointer;
+            transition: gap 0.2s;
+            background: none; border: none; font-family: inherit;
+        }
+        .back-btn:hover { gap: 0.75rem; }
+        .back-arrow {
+            display: inline-block; width: 20px; height: 20px;
+            border-left: 2px solid var(--blue-mid);
+            border-bottom: 2px solid var(--blue-mid);
+            transform: rotate(45deg);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            position: relative; height: 60vh; min-height: 400px;
+            overflow: hidden;
+            background: url('photos/回澜阁.jpg') center/cover;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
+        }
+        .hero-content {
+            position: absolute; bottom: 3rem; left: 2rem; right: 2rem;
+            z-index: 1; color: #fff;
+            max-width: 700px;
+            animation: fadeUp 0.8s ease-out;
+        }
+        .hero-breadcrumb {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+            opacity: 0.7; margin-bottom: 0.5rem;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, #f8ede0, #d4a373);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1rem; opacity: 0.8;
+            max-width: 500px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Content ===== */
+        .content { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .section { margin-bottom: 3rem; }
+        .section:last-child { margin-bottom: 0; }
+        .section-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.15em;
+            color: var(--blue-light);
+            margin-bottom: 0.75rem;
+        }
+        .section h2 {
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--blue-deep);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        .section p {
+            color: #5a5a6a;
+            margin-bottom: 1rem;
+            line-height: 1.9;
+        }
+        .section p:last-child { margin-bottom: 0; }
+
+        /* ===== Info Grid ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(0,0,0,0.06);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .info-item .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .info-item .label { font-size: 0.7rem; color: #8e8e9a; margin-bottom: 0.25rem; }
+        .info-item .value { font-size: 0.9rem; font-weight: 600; color: var(--blue-deep); }
+
+        /* ===== Photo Gallery ===== */
+        .gallery-grid-detail {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .gallery-grid-detail .photo {
+            border-radius: var(--radius);
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .gallery-grid-detail .photo:hover { transform: scale(1.02); }
+        .gallery-grid-detail .photo img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== Timeline ===== */
+        .timeline-detail { margin-top: 1.5rem; }
+        .timeline-detail .item {
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--blue-light);
+            padding-bottom: 1.5rem;
+            position: relative;
+        }
+        .timeline-detail .item:last-child { padding-bottom: 0; }
+        .timeline-detail .item::before {
+            content: ''; position: absolute;
+            left: -5px; top: 4px;
+            width: 8px; height: 8px;
+            background: var(--blue-mid);
+            border-radius: 50%;
+        }
+        .timeline-detail .item .time {
+            font-size: 0.7rem; font-weight: 600; color: var(--blue-light);
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        .timeline-detail .item p {
+            font-size: 0.88rem; margin-top: 0.3rem;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: var(--blue-deep);
+            color: rgba(255,255,255,0.7);
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+        .footer p { font-size: 0.8rem; line-height: 1.6; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .gallery-grid-detail { grid-template-columns: 1fr; }
+            .hero { height: 50vh; min-height: 350px; }
+            .hero-content { bottom: 2rem; left: 1.5rem; right: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-transition" id="pageTransition"></div>
+
+    <!-- ===== 返回栏 ===== -->
+    <div class="back-bar">
+        <button class="back-btn" onclick="goBack()">
+            <span class="back-arrow"></span>
+            返回青岛主页
+        </button>
+    </div>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-breadcrumb">Qingdao · 市南区</div>
+            <h1>栈桥 · <span class="accent">回澜阁</span></h1>
+            <p>百年栈桥，回澜听涛。这里是青岛的起点，一座城市的记忆原点。</p>
+        </div>
+    </section>
+
+    <!-- ===== 内容 ===== -->
+    <div class="content">
+
+        <!-- 简介 -->
+        <div class="section">
+            <p class="section-label">Introduction</p>
+            <h2>一座城市的百年守望</h2>
+            <p>栈桥，始建于清光绪十八年（1892年），是青岛最早的军事专用人工码头。全长440米，从太平路海岸一直延伸至青岛湾深处。桥南端建有民族风格的八角亭阁——「回澜阁」，阁顶覆金色琉璃瓦，在碧海蓝天之间格外醒目。</p>
+            <p>百余年来，栈桥历经多次修缮与重建，从最初的军事码头蜕变为青岛最著名的城市地标。它见证了这座城市的沧桑巨变，承载了几代青岛人的记忆。有人说，没到过栈桥，就不算到过青岛。</p>
+            <p>如今，栈桥已成为游客必到的打卡地。冬季时分，成千上万只西伯利亚海鸥飞来过冬，在栈桥上空盘旋飞舞，喂海鸥成了冬日青岛最温暖的一道风景线。</p>
+        </div>
+
+        <!-- 实用信息 -->
+        <div class="section">
+            <p class="section-label">Visitor Info</p>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="icon">🕐</div>
+                    <div class="label">建议时长</div>
+                    <div class="value">1-2小时</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">🎫</div>
+                    <div class="label">门票</div>
+                    <div class="value">免费</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">📍</div>
+                    <div class="label">地址</div>
+                    <div class="value">市南区太平路14号</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">🚶</div>
+                    <div class="label">距青岛站</div>
+                    <div class="value">步行5分钟</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">⏰</div>
+                    <div class="label">最佳季节</div>
+                    <div class="value">全年（冬季看海鸥）</div>
+                </div>
+                <div class="info-item">
+                    <div class="icon">📸</div>
+                    <div class="label">拍照机位</div>
+                    <div class="value">栈桥西侧沙滩</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图集 -->
+        <div class="section">
+            <p class="section-label">Gallery</p>
+            <h2>光影回澜</h2>
+            <div class="gallery-grid-detail">
+                <div class="photo"><img src="photos/回澜阁.jpg" alt="栈桥全景" loading="lazy"></div>
+                <div class="photo"><img src="photos/回澜阁-2.webp" alt="回澜阁近景" loading="lazy"></div>
+                <!-- 🔵 如有多余的栈桥照片，可以继续添加在此处 -->
+            </div>
+        </div>
+
+        <!-- 游玩路线 -->
+        <div class="section">
+            <p class="section-label">Tips</p>
+            <h2>游玩建议</h2>
+            <div class="timeline-detail">
+                <div class="item">
+                    <span class="time">📷 最佳拍照</span>
+                    <p>清晨或傍晚光线最柔和，从栈桥西侧沙滩拍摄可同时拍到回澜阁与城市天际线。退潮时可以走到礁石上，角度更佳。</p>
+                </div>
+                <div class="item">
+                    <span class="time">🕊️ 喂海鸥</span>
+                    <p>每年11月至次年4月，西伯利亚海鸥来青岛越冬。可以在栈桥上或海边投喂，最佳投喂时间在上午10点前。</p>
+                </div>
+                <div class="item">
+                    <span class="time">🎯 周边联动</span>
+                    <p>栈桥距天主教堂步行10分钟，距大学路网红墙步行15分钟，距信号山公园步行20分钟，可以串成一条老城漫步路线。</p>
+                </div>
+                <div class="item">
+                    <span class="time">⚠️ 注意事项</span>
+                    <p>节假日人流量极大，建议早上去。冬季海风大，注意保暖。涨潮时注意安全，不要到护栏外拍照。</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <p>© 2026 青岛旅游指南 · <span style="cursor:pointer;color:var(--blue-light);" onclick="goBack()">返回主页</span></p>
+    </footer>
+
+    <script>
+        const pt = document.getElementById('pageTransition');
+        function goBack() {
+            pt.classList.add('active');
+            setTimeout(() => { window.location.href = 'qingdao.html'; }, 450);
+        }
+    </script>
+</body>
+</html>

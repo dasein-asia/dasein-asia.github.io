@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青岛 · 红瓦绿树 碧海蓝天</title>
+    <meta name="description" content="青岛旅游攻略 — 栈桥、八大关、崂山、啤酒博物馆，全方位探索这座海滨之城。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           青岛 · 旅游指南
+           设计：极简海岸风格 · 蓝白为主 · 暖木色点缀
+           未配图 — 所有图片位置用渐变背景占位，替换方法见注释
+           ============================================================ */
+
+        /* ===== Variables ===== */
+        :root {
+            --blue-deep: #1a3a5c;
+            --blue-mid: #2d6a9f;
+            --blue-light: #5b9bd5;
+            --blue-sky: #e8f4fd;
+            --sand: #f5efe6;
+            --warm: #d4a373;
+            --warm-light: #f8ede0;
+            --text-dark: #1a1a2e;
+            --text-body: #4a4a5a;
+            --text-muted: #8e8e9a;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+            --font-cn: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+            --font-en: 'Inter', -apple-system, sans-serif;
+            --nav-h: 64px;
+        }
+
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-cn);
+            color: var(--text-body);
+            background: var(--white);
+            line-height: 1.7;
+            font-size: 15px;
+            padding-top: var(--nav-h);
+            -webkit-font-smoothing: antialiased;
+        }
+        img { display: block; max-width: 100%; height: auto; }
+        a { text-decoration: none; color: inherit; transition: color 0.2s; }
+
+        /* ===== Navigation ===== */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; height: var(--nav-h);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .navbar .logo {
+            font-family: var(--font-en);
+            font-size: 1.2rem; font-weight: 700;
+            color: var(--blue-deep);
+            letter-spacing: -0.02em;
+        }
+        .navbar .logo span { color: var(--warm); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a {
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--blue-mid); }
+        .menu-btn { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+        .menu-btn span { display: block; width: 22px; height: 2px; background: var(--text-dark); border-radius: 2px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-btn { display: flex; }
+            .nav-links.open {
+                display: flex; flex-direction: column;
+                position: fixed; top: var(--nav-h); left: 0; right: 0;
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(20px);
+                padding: 1.5rem 2rem; gap: 1rem;
+                border-bottom: 1px solid rgba(0,0,0,0.06);
+            }
+        }
+
+        /* ===== Hero =====
+             背景视频 + 封面图（套用 index.html 的设计方式）
+             🔵 替换视频/封面:
+             视频: 改 <source src="hero-bg.mp4"> 路径
+             封面: 改 poster="hero-poster.jpg" 路径
+        */
+        .hero {
+            position: relative; height: 85vh; min-height: 500px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; inset: 0;
+            z-index: 0;
+        }
+        .hero-bg video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 1;
+        }
+        .hero-wave {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+            background: var(--white);
+            clip-path: ellipse(70% 100% at 50% 100%);
+        }
+        .hero-content {
+            position: relative; z-index: 2; text-align: center;
+            padding: 2rem; max-width: 700px;
+            animation: heroUp 1s ease-out;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 0.35rem 1.2rem;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.12em;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-family: var(--font-cn);
+            font-size: clamp(2.5rem, 6vw, 4.2rem);
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, #f8ede0, #d4a373);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: rgba(255,255,255,0.75);
+            max-width: 520px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
+        }
+        .hero-cta {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.8rem 2.2rem;
+            background: var(--white);
+            color: var(--blue-deep);
+            border-radius: 100px;
+            font-size: 0.9rem; font-weight: 600;
+            transition: all 0.25s;
+        }
+        .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+        @keyframes heroUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Section Common ===== */
+        section { padding: 5rem 1.5rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .section-label {
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.15em;
+            color: var(--blue-light);
+            margin-bottom: 0.5rem;
+        }
+        .section-title {
+            font-family: var(--font-cn);
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.25;
+            margin-bottom: 1rem;
+        }
+        .section-title .highlight { color: var(--blue-mid); }
+        .section-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.8;
+        }
+        .section-desc + .section-desc { margin-top: 0.5rem; }
+
+        /* ===== Intro / Overview ===== */
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        .intro-image {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            /*
+             🔵 替换简介区图片：
+             background-image: url('qingdao-intro.jpg');
+            */
+            background: linear-gradient(145deg, #e8f4fd, #d4e9f7);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .intro-image svg { width: 80px; height: 80px; opacity: 0.2; }
+
+        @media (max-width: 768px) {
+            .intro-grid { grid-template-columns: 1fr; gap: 2rem; }
+        }
+
+        /* ===== Stats Bar ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--blue-deep);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-top: 3rem;
+        }
+        .stat-item {
+            background: var(--blue-deep);
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        .stat-item .num {
+            font-family: var(--font-en);
+            font-size: 1.8rem; font-weight: 700;
+            color: var(--warm);
+        }
+        .stat-item .label {
+            font-size: 0.78rem; color: rgba(255,255,255,0.6);
+            margin-top: 0.3rem;
+        }
+        @media (max-width: 640px) {
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ===== Attractions ===== */
+        .attractions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        .attraction-card {
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .attraction-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .attraction-card .card-img {
+            aspect-ratio: 16/10;
+            /*
+             🔵 替换各景点图片：
+             把下方 background 注释中的图片路径替换为真实图片。
+             例: background-image: url('attraction-zhanqiao.jpg');
+            */
+            display: flex; align-items: center; justify-content: center;
+        }
+        .attraction-card .card-img svg { width: 40px; height: 40px; opacity: 0.15; }
+        .attraction-card .card-body { padding: 1.25rem; }
+        .attraction-card .card-body h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .attraction-card .card-body .tag { font-size: 0.7rem; color: var(--blue-light); font-weight: 500; }
+        .attraction-card .card-body p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.7; }
+
+        /* 景点卡片图片 — 使用 photos/ 目录下的实拍图 */
+
+        @media (max-width: 768px) {
+            .attractions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .attractions-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== Itinerary / Timeline ===== */
+        .timeline { margin-top: 3rem; position: relative; }
+        .timeline::before {
+            content: ''; position: absolute;
+            left: 24px; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--blue-light), var(--warm));
+        }
+        .day-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 2.5rem;
+        }
+        .day-item:last-child { margin-bottom: 0; }
+        .day-marker {
+            position: absolute; left: 12px; top: 4px;
+            width: 26px; height: 26px;
+            background: var(--white);
+            border: 2px solid var(--blue-light);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .day-marker .dot {
+            width: 8px; height: 8px;
+            background: var(--blue-mid);
+            border-radius: 50%;
+        }
+        .day-item .day-label {
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--blue-light);
+            margin-bottom: 0.25rem;
+        }
+        .day-item h3 {
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        .day-item ul { list-style: none; padding: 0; }
+        .day-item ul li {
+            font-size: 0.88rem;
+            color: var(--text-body);
+            padding: 0.3rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+        .day-item ul li::before {
+            content: '·'; position: absolute; left: 0;
+            color: var(--blue-light); font-weight: 700;
+        }
+
+        /* ===== Food Section ===== */
+        .food-showcase {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+        .food-item {
+            border-radius: var(--radius);
+            overflow: hidden;
+            /*
+             🔵 替换美食图片
+             例: background-image: url('food-beer.jpg');
+            */
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            padding: 1.5rem 1rem;
+            aspect-ratio: 1;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+        }
+        .food-item::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+            z-index: 0;
+        }
+        .food-item span {
+            position: relative; z-index: 1;
+            font-size: 0.9rem; font-weight: 600;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .food-item .food-en {
+            font-family: var(--font-en);
+            font-size: 0.65rem; font-weight: 400;
+            opacity: 0.8; margin-top: 0.2rem;
+        }
+        /* 美食图片 — 已在 HTML 中用 inline style 设置 background-image */
+
+        @media (max-width: 640px) {
+            .food-showcase { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ===== Gallery Placeholder ===== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto;
+            gap: 0.75rem;
+            margin-top: 2.5rem;
+        }
+        .gallery-item {
+            border-radius: var(--radius);
+            aspect-ratio: 4/3;
+            /*
+             🔵 替换画廊图片:
+             例: background-image: url('gallery-1.jpg');
+            */
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover { transform: scale(1.02); }
+        .gallery-item svg { width: 30px; height: 30px; opacity: 0.15; }
+        .gallery-item.tall { grid-row: span 2; aspect-ratio: auto; }
+
+        .gallery-item:nth-child(1) { background: linear-gradient(135deg, #1a3a5c, #2d6a9f); }
+        .gallery-item:nth-child(2) { background: linear-gradient(135deg, #2d6a9f, #5b9bd5); }
+        .gallery-item:nth-child(3) { background: linear-gradient(135deg, #5b9bd5, #89c4e1); }
+        .gallery-item:nth-child(4) { background: linear-gradient(135deg, #d4a373, #e8c9a0); }
+        .gallery-item:nth-child(5) { background: linear-gradient(135deg, #1a3a5c, #3a7bb5); }
+        .gallery-item:nth-child(6) { background: linear-gradient(135deg, #e8c9a0, #d4a373); }
+        .gallery-item:nth-child(7) { background: linear-gradient(135deg, #89c4e1, #5b9bd5); }
+        .gallery-item:nth-child(8) { background: linear-gradient(135deg, #2d6a9f, #1a3a5c); }
+
+        @media (max-width: 768px) {
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .gallery-item.tall { grid-row: span 1; }
+        }
+        @media (max-width: 480px) {
+            .gallery-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== Tips Section ===== */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        .tip-card {
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.06);
+            background: var(--white);
+        }
+        .tip-card .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .tip-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.4rem; }
+        .tip-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.7; }
+
+        @media (max-width: 768px) {
+            .tips-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .tips-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== CTA Banner ===== */
+        .cta-banner {
+            background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            text-align: center;
+            color: var(--white);
+        }
+        .cta-banner h2 {
+            font-family: var(--font-cn);
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .cta-banner p {
+            font-size: 0.9rem;
+            opacity: 0.75;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: var(--blue-deep);
+            color: rgba(255,255,255,0.7);
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+        .footer .logo {
+            font-family: var(--font-en);
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+        .footer .logo span { color: var(--warm); }
+        .footer p { font-size: 0.8rem; line-height: 1.6; }
+        .footer-divider {
+            width: 40px; height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 1rem auto;
+        }
+
+        /* ===== Scroll Animation ===== */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== Page Transition ===== */
+        .page-transition {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--blue-deep);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+        .page-transition.active { opacity: 1; }
+
+        .attraction-card { cursor: pointer; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 480px) {
+            section { padding: 3rem 1rem; }
+            .hero { height: 70vh; min-height: 420px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 导航 ==================== -->
+    <nav class="navbar">
+        <a href="#" class="logo">Qing<span>dao</span></a>
+        <div class="nav-links" id="navLinks">
+            <a href="#overview">概览</a>
+            <a href="#attractions">景点</a>
+            <a href="#itinerary">行程</a>
+            <a href="#food">美食</a>
+            <a href="#gallery">图库</a>
+            <a href="#tips">贴士</a>
+        </div>
+        <button class="menu-btn" id="menuBtn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- ==================== 英雄区 ====================
+         🔵 背景视频 + 封面图（套用 index.html 设计方式）
+         视频: hero-bg.mp4 | 封面: hero-poster.jpg
+         替换成你自己的文件即可。
+    -->
+    <section class="hero">
+        <div class="hero-bg">
+            <video autoplay muted loop playsinline poster="hero-poster.jpg">
+                <source src="hero-bg.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">📍 中国 · 山东</div>
+            <h1>红瓦绿树，<br><span class="highlight">碧海蓝天</span></h1>
+            <p>青岛，一座让人心动的海滨之城。德式建筑与东方韵味在此交融，啤酒的麦芽香伴着海风，诉说着这座城市的独特魅力。</p>
+            <a href="#attractions" class="hero-cta">开始探索 ↓</a>
+        </div>
+        <div class="hero-wave"></div>
+    </section>
+
+    <!-- ==================== 概览 ==================== -->
+    <section id="overview">
+        <div class="container">
+            <div class="intro-grid">
+                <div class="intro-text reveal">
+                    <p class="section-label">About Qingdao</p>
+                    <h2 class="section-title">一座叫<span class="highlight">「青岛」</span>的城市</h2>
+                    <p class="section-desc">
+                        青岛，地处山东半岛东南部，依山傍海，气候宜人。这里既有「红瓦绿树、碧海蓝天」的标志性景观，也有百年德式建筑群留下的历史印记。
+                    </p>
+                    <p class="section-desc">
+                        无论是漫步在八大关的梧桐树下，还是在栈桥边看海鸥飞翔，青岛总能让你放慢脚步，感受生活的美好。
+                    </p>
+                </div>
+                <div class="intro-image reveal" style="background: url('photos/平流雾.jpg') center/cover;"></div>
+            </div>
+
+            <!-- 数据统计 -->
+            <div class="stats-bar reveal">
+                <div class="stat-item">
+                    <div class="num">7</div>
+                    <div class="label">个市辖区</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num">12,000+</div>
+                    <div class="label">平方公里</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num">1,000万+</div>
+                    <div class="label">常住人口</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num">120+</div>
+                    <div class="label">年建城历史</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 景点 ==================== -->
+    <section id="attractions" style="background: var(--blue-sky);">
+        <div class="container">
+            <div class="reveal">
+                <p class="section-label">Attractions</p>
+                <h2 class="section-title">必去 <span class="highlight">景点</span></h2>
+                <p class="section-desc">青岛有太多值得探索的地方，从历史建筑到自然风光，每一处都令人流连忘返。</p>
+            </div>
+
+            <div class="attractions-grid">
+                <!-- 卡片 1: 栈桥（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-zhanqiao.html')">
+                    <div class="card-img" style="background: url('photos/回澜阁.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>栈桥 · 回澜阁</h3>
+                        <span class="tag">📍 市南区 | 免费 | 🚶 距青岛站0.5km·步行5分钟</span>
+                        <p>青岛的标志性建筑，从海岸延伸入海，尽头是中式亭阁回澜阁。冬季可在此喂西伯利亚海鸥，场面壮观。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片 2: 八大关（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-badaguan.html')">
+                    <div class="card-img" style="background: url('photos/八大关.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>八大关</h3>
+                        <span class="tag">📍 市南区 | 免费 | 🚗 距青岛站6km·约15分钟车程</span>
+                        <p>「万国建筑博览会」，汇聚20多个国家的建筑风格。春有樱花、秋有银杏，四季皆景。公主楼、花石楼是必打卡点。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片 3: 崂山（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-laoshan.html')">
+                    <div class="card-img" style="background: url('photos/崂山.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>崂山</h3>
+                        <span class="tag">📍 崂山区 | 约¥120 | 🚗 距青岛站30km·约40分钟车程</span>
+                        <p>「海上第一名山」，山海相连的壮丽风光。巨峰观云海、太清宫赏千年银杏、仰口看奇石，每条路线都值得一游。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片 4: 五四广场 & 奥帆中心（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-wusi.html')">
+                    <div class="card-img" style="background: url('photos/五四广场·奥帆.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>五四广场 · 奥帆中心</h3>
+                        <span class="tag">📍 市南区 | 免费 | 🚗 距青岛站7km·约15分钟车程</span>
+                        <p>青岛的城市名片，标志性雕塑「五月的风」坐落于此。毗邻奥帆中心，傍晚看帆船归航、灯光秀璀璨夺目。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片 5: 啤酒博物馆（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-beer.html')">
+                    <div class="card-img" style="background: url('photos/青岛啤酒博物馆.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>青岛啤酒博物馆</h3>
+                        <span class="tag">📍 市北区 | 约¥60 | 🚗 距青岛站4km·约10分钟车程</span>
+                        <p>在原青岛啤酒厂百年厂房内，了解啤酒百年酿造史。参观结束后可品尝最新鲜的原浆啤酒，麦香四溢。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片 6: 小麦岛（点击查看详情） -->
+                <div class="attraction-card reveal" onclick="navigateTo('attraction-xiaomai.html')">
+                    <div class="card-img" style="background: url('photos/小麦岛.jpg') center/cover;"></div>
+                    <div class="card-body">
+                        <h3>小麦岛公园</h3>
+                        <span class="tag">📍 崂山区 | 免费 | 🚗 距青岛站15km·约30分钟车程</span>
+                        <p>新晋网红打卡地，360°环海视野。草地斜坡、孤独的树、橘子色日落——青春的浪漫气息在这里弥漫。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 行程建议 ==================== -->
+    <section id="itinerary">
+        <div class="container">
+            <div class="reveal">
+                <p class="section-label">Itinerary</p>
+                <h2 class="section-title">推荐 <span class="highlight">三日游</span></h2>
+                <p class="section-desc">紧凑又不赶路的行程安排，带你领略青岛最精华的一面。</p>
+            </div>
+
+            <div class="timeline">
+                <!-- Day 1 -->
+                <div class="day-item reveal">
+                    <div class="day-marker"><span class="dot"></span></div>
+                    <span class="day-label">Day 1 · 老城风情</span>
+                    <h3>遇见百年青岛</h3>
+                    <ul>
+                        <li>栈桥 → 喂海鸥、看回澜阁</li>
+                        <li>天主教堂 → 浙江路地标，拍照绝佳</li>
+                        <li>信号山公园 → 俯瞰老城全景</li>
+                        <li>大学路网红墙 → 红墙绿树，文艺漫步</li>
+                        <li>小鱼山 → 日落时分的金色海岸</li>
+                    </ul>
+                </div>
+
+                <!-- Day 2 -->
+                <div class="day-item reveal">
+                    <div class="day-marker"><span class="dot"></span></div>
+                    <span class="day-label">Day 2 · 海岸漫游</span>
+                    <h3>从八大关到奥帆中心</h3>
+                    <ul>
+                        <li>八大关 → 漫步万国建筑群</li>
+                        <li>第二海水浴场 → 沙滩与礁石</li>
+                        <li>五四广场 → 看「五月的风」</li>
+                        <li>奥帆中心 → 帆船之都的骄傲</li>
+                        <li>情人坝 → 傍晚散步看灯光秀</li>
+                    </ul>
+                </div>
+
+                <!-- Day 3 -->
+                <div class="day-item reveal">
+                    <div class="day-marker"><span class="dot"></span></div>
+                    <span class="day-label">Day 3 · 山海之间</span>
+                    <h3>登崂山 品青岛</h3>
+                    <ul>
+                        <li>崂山（推荐太清宫或仰口线）→ 山海奇观</li>
+                        <li>青山渔村 → 藏在山海间的彩色村落</li>
+                        <li>青岛啤酒博物馆 → 了解啤酒文化，喝原浆</li>
+                        <li>登州路啤酒街 → 海鲜配啤酒，完美收尾</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 美食 ==================== -->
+    <section id="food" style="background: var(--sand);">
+        <div class="container">
+            <div class="reveal">
+                <p class="section-label">Food & Drink</p>
+                <h2 class="section-title">舌尖上的 <span class="highlight">青岛</span></h2>
+                <p class="section-desc">海味与啤酒，是青岛人餐桌上的日常。</p>
+            </div>
+
+            <div class="food-showcase">
+                <!--
+                  🔵 替换美食图片:
+                  <div class="food-item" style="background: url('food-shellfish.jpg') center/cover;">
+                -->
+                <div class="food-item reveal" style="background: url('photos/辣炒蛤蜊.jpg') center/cover;">
+                    <span>辣炒蛤蜊</span>
+                    <span class="food-en">Stir-fried Clams</span>
+                </div>
+                <div class="food-item reveal" style="background: url('photos/海鲜水饺.jpg') center/cover;">
+                    <span>海鲜水饺</span>
+                    <span class="food-en">Seafood Dumplings</span>
+                </div>
+                <div class="food-item reveal" style="background: url('photos/原浆啤酒.png') center/cover;">
+                    <span>原浆啤酒</span>
+                    <span class="food-en">Draft Tsingtao Beer</span>
+                </div>
+                <div class="food-item reveal" style="background: url('photos/海肠捞饭.jpg') center/cover;">
+                    <span>海肠捞饭</span>
+                    <span class="food-en">Sea Cucumber Rice</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 图库 ==================== -->
+    <section id="gallery">
+        <div class="container">
+            <div class="reveal">
+                <p class="section-label">Gallery</p>
+                <h2 class="section-title">光影 <span class="highlight">青岛</span></h2>
+                <p class="section-desc">用镜头记录这座城市的美好瞬间。</p>
+            </div>
+
+            <!--
+              🔵 替换画廊图片:
+              将下方每个 gallery-item 的 background 渐变换为你的图片。
+              例: <div class="gallery-item" style="background: url('gallery-1.jpg') center/cover;">
+            -->
+            <div class="gallery-grid">
+                <div class="gallery-item reveal" style="background: url('photos/八大关-2.webp') center/cover;"></div>
+                <div class="gallery-item tall reveal" style="background: url('photos/崂山-2.jpg') center/cover;"></div>
+                <div class="gallery-item reveal" style="background: url('photos/五四广场·奥帆-3.jpg') center/cover;"></div>
+                <div class="gallery-item reveal" style="background: url('photos/平流雾.jpg') center/cover;"></div>
+                <div class="gallery-item reveal" style="background: url('photos/青岛啤酒博物馆-2.jpg') center/cover;"></div>
+                <div class="gallery-item tall reveal" style="background: url('photos/跨海大桥.webp') center/cover;"></div>
+                <div class="gallery-item reveal" style="background: url('photos/天主教堂-2.jpg') center/cover;"></div>
+                <div class="gallery-item reveal" style="background: url('photos/八大关-银杏叶.webp') center/cover;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 实用贴士 ==================== -->
+    <section id="tips" style="background: var(--blue-sky);">
+        <div class="container">
+            <div class="reveal">
+                <p class="section-label">Travel Tips</p>
+                <h2 class="section-title">出行 <span class="highlight">贴士</span></h2>
+            </div>
+
+            <div class="tips-grid">
+                <div class="tip-card reveal">
+                    <div class="icon">🚄</div>
+                    <h4>交通指南</h4>
+                    <p>首选「青岛站」，位于老城中心，出站即是景点密集区。地铁已覆盖主要景区，下载「青岛地铁APP」扫码乘车。</p>
+                </div>
+                <div class="tip-card reveal">
+                    <div class="icon">🏨</div>
+                    <h4>住宿推荐</h4>
+                    <p>建议住市南区，沿海岸线分布，去栈桥、八大关、五四广场都很方便。民宿和海景酒店选择丰富。</p>
+                </div>
+                <div class="tip-card reveal">
+                    <div class="icon">🦐</div>
+                    <h4>美食避坑</h4>
+                    <p>吃海鲜别去景区附近的大排档，巷子里做本地人生意的才是宝藏店。袋装啤酒一定要试试！</p>
+                </div>
+                <div class="tip-card reveal">
+                    <div class="icon">☀️</div>
+                    <h4>最佳季节</h4>
+                    <p>夏季（6-8月）适合海水浴场；秋季（9-10月）天气最舒适；冬季可看海鸥和雪景，各有韵味。</p>
+                </div>
+                <div class="tip-card reveal">
+                    <div class="icon">📸</div>
+                    <h4>拍照机位</h4>
+                    <p>信号山俯瞰老城全景、小鱼山拍海岸线、小麦岛拍日落、八大关拍建筑细节——每个地方都是出片圣地。</p>
+                </div>
+                <div class="tip-card reveal">
+                    <div class="icon">⚠️</div>
+                    <h4>注意事项</h4>
+                    <p>海边紫外线强，注意防晒。旺季住宿和车票提前预订。下海游泳请到正规海水浴场。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CTA ==================== -->
+    <section>
+        <div class="container reveal">
+            <div class="cta-banner">
+                <h2>出发吧，去青岛</h2>
+                <p>阳光、沙滩、啤酒、海鲜——这座海滨之城已经准备好，只差一个你。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 页脚 ==================== -->
+    <footer class="footer">
+        <div class="logo">Qing<span>dao</span></div>
+        <p>红瓦绿树 · 碧海蓝天</p>
+        <div class="footer-divider"></div>
+        <p>© 2026 青岛旅游指南 · 用心推荐每一段旅程</p>
+    </footer>
+
+    <!-- ==================== 页面跳转过渡遮罩 ==================== -->
+    <div class="page-transition" id="pageTransition"></div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // 移动端菜单
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+        menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // 滚动渐入动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // 导航栏滚动效果
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.style.borderBottomColor = window.scrollY > 10 ? 'rgba(0,0,0,0.06)' : 'transparent';
+        });
+
+        // 页面跳转过渡动画 — 点击景点卡片时渐变到详情页
+        const pt = document.getElementById('pageTransition');
+        function navigateTo(url) {
+            pt.classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 450);
+        }
+    </script>
+
+</body>
+</html>
