@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学猫——班级数学小助手</title>
+<style>
+  :root{
+    --bg:#f0f8ff;
+    --card:#ffffff;
+    --ink:#1d2b4f;
+    --muted:#6b7a99;
+    --primary:#2f6df6;
+    --primary-dark:#1f53cc;
+    --accent:#ffb020;
+    --ok:#1fa971;
+    --bad:#e5484d;
+    --line:#e3e9f7;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    padding:24px 16px 90px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:28px;
+    margin-bottom:24px;
+    box-shadow:0 10px 30px rgba(29,43,79,.07);
+  }
+  /* 答题卡片圆角略小，更像“题目纸” */
+  #quizStep .card, #resultStep .card { border-radius:10px; }
+  h1,h2,h3{margin:0 0 12px;line-height:1.3}
+  h1{font-size:30px;letter-spacing:.5px}
+  h2{font-size:22px}
+  h3{font-size:18px}
+  p{margin:0 0 12px}
+  .muted{color:var(--muted);font-size:15px}
+  .view{display:none}
+  .view.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 顶部栏 */
+  .topbar{
+    position:sticky;top:8px;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:10px 14px;margin:-10px -14px 20px;
+    border:1px solid transparent;border-radius:16px;background:transparent;
+    transition:background .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  body.scrolled .topbar{
+    background:rgba(255,255,255,.62);
+    -webkit-backdrop-filter:blur(14px) saturate(1.6);
+    backdrop-filter:blur(14px) saturate(1.6);
+    border-color:rgba(47,109,246,.14);
+    box-shadow:0 8px 24px rgba(29,43,79,.08);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px}
+  .brand .logo{
+    width:34px;height:34px;display:grid;place-items:center;
+    background:none;font-size:24px;line-height:1;
+  }
+  .pill{
+    display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;
+    background:#f0f4ff;color:var(--primary-dark);border:1px solid #dbe5ff;
+  }
+
+  /* 按钮 */
+  button{font-family:inherit;font-size:16px;cursor:pointer;border:none}
+  .btn{
+    border-radius:14px;padding:12px 20px;background:#eef3ff;color:var(--primary-dark);
+    font-weight:600;transition:.15s;border:1px solid #dbe5ff;
+  }
+  .btn:hover{transform:translateY(-1px);background:#e4ecff}
+  .btn:active{transform:none}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .btn-ghost:hover{background:#f7f9ff}
+  .btn-primary{background:var(--primary);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(47,109,246,.25)}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* 首页 */
+  .hero{text-align:center;padding:26px 10px 8px}
+  .hero h1{font-size:34px}
+  .hero .sub{color:var(--muted);margin-bottom:28px}
+  .entries{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 auto;max-width:560px}
+  .entry{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding:30px 16px;border-radius:22px;background:#f7faff;border:2px solid #e4ecff;
+    box-shadow:0 8px 20px rgba(29,43,79,.06);transition:.18s;
+  }
+  .entry:hover{transform:translateY(-3px);border-color:var(--primary);background:#fff}
+  .entry .ico{font-size:44px;line-height:1}
+  .entry strong{font-size:20px}
+  .entry small{color:var(--muted)}
+
+  /* 课时按钮 */
+  .lesson-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0 22px}
+  .lesson-btn{
+    text-align:left;padding:14px 16px;border-radius:14px;background:#f8faff;
+    border:1px solid var(--line);color:var(--ink);font-size:15px;line-height:1.45;
+    display:flex;gap:10px;align-items:flex-start;transition:.15s;
+  }
+  .lesson-btn:hover{background:#eef4ff;border-color:#cfe0ff}
+  .lesson-btn.cur{background:#e8f0ff;border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+  .lesson-btn .no{
+    flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+    background:#dbe6ff;color:var(--primary-dark);font-size:12px;font-weight:700;margin-top:1px;
+  }
+  .lesson-btn.star .no{background:#fff1d6;color:#a86b00}
+
+  /* 提示条 */
+  .notice{
+    border-radius:14px;padding:14px 16px;background:#f0f7ff;border:1px solid #d6e6ff;
+    font-size:15px;margin-bottom:16px;
+  }
+  .notice.ok{background:#eefaf3;border-color:#cfeee0}
+  .notice.warn{background:#fff8e8;border-color:#ffe3ad}
+  .notice.bad{background:#fdf0f0;border-color:#f8d4d4;color:#a12a2e}
+
+  /* 记录列表 */
+  .log{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto}
+  .log li{
+    display:flex;justify-content:space-between;gap:12px;padding:9px 12px;border-radius:10px;
+    font-size:14px;background:#f8faff;margin-bottom:6px;
+  }
+  .log li span:last-child{color:var(--muted);white-space:nowrap;font-size:13px}
+
+  /* 代号 */
+  .field{max-width:420px;margin:0 auto}
+  .field label{display:block;font-weight:600;margin-bottom:8px}
+  .input{
+    width:100%;padding:14px 16px;border-radius:14px;border:2px solid var(--line);
+    font-size:18px;font-family:inherit;color:var(--ink);background:#fbfcff;outline:none;
+    transition:.15s;letter-spacing:1px;
+  }
+  .input:focus{border-color:var(--primary);background:#fff}
+  .hint{font-size:13px;color:var(--muted);margin-top:8px}
+  .err{color:var(--bad);font-size:14px;margin-top:8px;min-height:20px}
+
+  /* 题目 */
+  .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .q-item{padding:16px 0;border-bottom:1px dashed var(--line)}
+  .q-item:last-of-type{border-bottom:none}
+  .q-title{font-weight:600;margin-bottom:14px}
+  .q-title .num{
+    display:inline-grid;place-items:center;width:26px;height:26px;border-radius:9px;
+    background:#e8f0ff;color:var(--primary-dark);font-size:14px;margin-right:8px;
+  }
+  .opts{display:grid;gap:8px}
+  .opt{
+    display:flex;align-items:center;gap:12px;text-align:left;padding:11px 15px;
+    border-radius:14px;border:2px solid var(--line);background:#fbfcff;color:var(--ink);font-size:16px;
+    transition:.13s;
+  }
+  .opt:hover{border-color:#c3d6ff;background:#f2f7ff}
+  .opt .key{
+    flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+    background:#eef3ff;color:var(--primary-dark);font-weight:700;font-size:14px;
+  }
+  .opt.sel{border-color:var(--primary);background:#e8f0ff}
+  .opt.sel .key{background:var(--primary);color:#fff}
+  .opt.right{border-color:var(--ok);background:#effaf5}
+  .opt.right .key{background:var(--ok);color:#fff}
+  .opt.wrong{border-color:var(--bad);background:#fdf1f1}
+  .opt.wrong .key{background:var(--bad);color:#fff}
+  .opt[disabled]{cursor:default}
+  .q-explain{
+    margin-top:12px;padding:12px 14px;border-radius:12px;background:#fffbf0;
+    border:1px solid #ffe6b0;font-size:15px;color:#7a5a12;
+  }
+  .score-big{font-size:26px;font-weight:800;color:var(--primary-dark)}
+
+  /* 排行榜 */
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tab{
+    padding:9px 20px;border-radius:999px;background:#f3f6ff;color:var(--muted);
+    font-weight:600;font-size:15px;border:1px solid var(--line);
+  }
+  .tab.on{background:var(--primary);color:#fff;border-color:transparent}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{padding:11px 8px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:13px;text-transform:none}
+  td.rk{width:52px;font-weight:700;color:var(--muted)}
+  td.rk.g1{color:#d4a017} td.rk.g2{color:#8a95a8} td.rk.g3{color:#b07a45}
+  .empty{padding:28px 0;text-align:center;color:var(--muted);font-size:15px}
+
+  /* 桌宠 */
+  #pet{
+    display:none;
+    position:fixed;right:26px;bottom:26px;font-size:50px;line-height:1;
+    cursor:pointer;user-select:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.15));
+    animation:float 2.4s ease-in-out infinite;z-index:50;
+  }
+  body.view-teacher #pet{display:block}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  #petMenu{
+    position:fixed;right:26px;bottom:92px;width:300px;max-height:60vh;overflow:auto;
+    background:#fff;border-radius:18px;box-shadow:0 18px 40px rgba(29,43,79,.2);
+    padding:14px;display:none;z-index:51;border:1px solid var(--line);
+  }
+  #petMenu.on{display:block;animation:fade .18s ease}
+  body.quiz-mode #pet{opacity:0;pointer-events:none}
+  #petMenu .t{font-size:14px;color:var(--muted);margin:0 0 10px;padding-left:4px}
+  #petMenu .m-btn{
+    display:block;width:100%;text-align:left;padding:10px 12px;border-radius:10px;
+    background:#f8faff;margin-bottom:6px;font-size:14px;color:var(--ink);
+  }
+  #petMenu .m-btn:hover{background:#eef4ff}
+
+  /* 老师密码 / 轻提示 */
+  #pwdModal{position:fixed;inset:0;background:rgba(20,30,60,.35);display:none;place-items:center;z-index:80;padding:20px}
+  #pwdModal.on{display:grid}
+  .pwd-card{background:#fff;border-radius:22px;padding:28px;max-width:370px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(20,30,60,.3);animation:fade .2s ease}
+  .pwd-card .pwd-ico{font-size:36px;line-height:1}
+  .pwd-card h2{margin:8px 0 2px}
+  .pwd-card .input{text-align:center;letter-spacing:10px;font-size:22px;padding-left:26px}
+  .pwd-card .row{justify-content:center;margin-top:8px}
+  #toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(12px);background:#1d2b4f;color:#fff;padding:11px 20px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:.25s;z-index:70;max-width:88vw;text-align:center;box-shadow:0 10px 24px rgba(20,30,60,.25)}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .q-actions{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 30%);padding:16px 0 8px;margin-top:12px}
+  /* 出题方式切换 */
+  .mode-box{border:1px dashed var(--line);border-radius:16px;padding:16px;margin:4px 0 18px;background:#fbfcff}
+  .mode-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .mode-label{font-weight:600}
+  #modeHint{font-size:14px;line-height:1.5}
+  .seg{display:inline-flex;background:#eef3ff;border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px}
+  .seg-btn{padding:7px 18px;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:600}
+  .seg-btn.on{background:#fff;color:var(--primary-dark);box-shadow:0 2px 8px rgba(47,109,246,.18)}
+  /* 排行榜 */
+  .table-scroll{overflow-x:auto;margin:0 -2px;padding-bottom:4px}
+  #rankTable{min-width:100%}
+  th.wk,td.wk{text-align:center;white-space:nowrap;min-width:48px}
+  .crown{width:21px;height:16px;vertical-align:-3px}
+  .nodot{color:#cfd6e6}
+  .center{text-align:center}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row.between{justify-content:space-between;align-items:center}
+  .mt{margin-top:18px}
+  @media (max-width:640px){
+    body{font-size:16px;padding:14px 12px 96px}
+    .card{padding:18px;margin-bottom:18px}
+    .entries,.lesson-grid{grid-template-columns:1fr}
+    .hero{padding:14px 4px 4px}
+    .hero h1{font-size:26px}
+    .hero .sub{font-size:14px;margin-bottom:20px}
+    .entry{padding:22px 14px}
+    .entry .ico{font-size:38px}
+    .entry strong{font-size:18px}
+
+    .topbar{padding:8px 10px;margin:-8px -10px 16px;border-radius:14px;gap:8px;
+      flex-direction:column;align-items:flex-start}
+    .topbar > .row{width:100%;flex-wrap:wrap;gap:6px}
+    .topbar > .row .btn{flex:1 1 auto;white-space:nowrap;justify-content:center}
+    .brand{font-size:16px;gap:6px}
+    .brand .logo{width:28px;height:28px;font-size:20px}
+    .pill{font-size:12px;padding:2px 8px}
+    .topbar .row{gap:6px}
+    .btn-sm{padding:7px 10px;font-size:13px}
+    .btn{padding:11px 16px;font-size:15px}
+
+    .q-head{gap:8px}
+    .q-head h2{font-size:19px}
+    .score-big{font-size:22px}
+    .q-title{font-size:15.5px;margin-bottom:10px}
+    .opt{padding:10px 12px;font-size:15px;gap:10px}
+    .q-foot{gap:8px}
+    .btn-explain{padding:7px 12px;font-size:13px}
+    .q-actions{padding:12px 0 2px}
+    .q-actions .btn{padding:10px 14px;font-size:14px}
+
+    .mode-box{padding:13px}
+    .seg-btn{padding:6px 14px;font-size:13px}
+
+    .chat-box{height:52vh;padding:10px}
+    .msg{font-size:14px;padding:9px 12px}
+    .chat-input{gap:8px}
+    .chat-input .btn{padding:11px 16px}
+
+    .pwd-card{padding:22px}
+    #pet{right:14px;bottom:14px;font-size:42px}
+    #petMenu{right:10px;left:10px;width:auto;max-width:none;bottom:70px}
+  }
+  @media (max-width:400px){
+    .brand span{font-size:14px}
+    .btn-sm{padding:6px 8px;font-size:12px}
+    .topbar .row{gap:5px}
+    .lesson-btn{font-size:14px;padding:12px}
+    th,td{padding:9px 6px;font-size:14px}
+  }
+
+  /* 按钮小号 */
+  .btn-sm{padding:8px 13px;font-size:14px;border-radius:12px}
+  /* 题目底部：解析按钮 + 得分 */
+  .q-foot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .btn-explain{padding:8px 16px;font-size:14px;border-radius:12px;background:#f0f4ff;
+    color:var(--primary-dark);border:1px solid #dbe5ff;font-weight:600}
+  .btn-explain.btn-explain-wrong{background:#fff2e2;border-color:#ffd39a;color:#a35b00}
+  .btn-explain[disabled]{opacity:.45;cursor:not-allowed}
+  .tag-ok{color:var(--ok);font-weight:700;font-size:14px}
+  .tag-bad{color:var(--bad);font-weight:700;font-size:14px}
+  .q-explain-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+  .q-explain-wrap>.q-explain{overflow:hidden;min-height:0;margin:0;padding:0;border:none;background:transparent}
+  .q-explain-wrap.open{grid-template-rows:1fr;margin-top:12px}
+  .q-explain-wrap.open>.q-explain{padding:12px 14px;border:1px solid #ffe6b0;background:#fffbf0;border-radius:12px}
+
+  /* 错题本 */
+  .wb-group{margin-bottom:18px}
+  .wb-title{display:flex;align-items:center;gap:10px;font-weight:700;margin:0 0 10px;font-size:16px}
+  .wb-item{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fbfcff;overflow:hidden}
+  .wb-head{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;
+    padding:12px 14px;background:transparent;text-align:left;color:var(--ink);font-size:15px}
+  .wb-head:hover{background:#eef4ff}
+  .wb-q{flex:1;line-height:1.5}
+  .wb-arrow{transition:transform .25s;color:var(--muted)}
+  .wb-item.open .wb-arrow{transform:rotate(180deg)}
+  .wb-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+  .wb-item.open .wb-wrap{grid-template-rows:1fr}
+  .wb-body{overflow:hidden;min-height:0;padding:0 14px}
+  .wb-item.open .wb-body{padding:0 14px 12px}
+  .wb-body p{margin:0 0 6px;font-size:14px;line-height:1.55}
+
+  /* AI 伙伴聊天 */
+  .chat-box{border:1px solid var(--line);border-radius:14px;background:#faffff;padding:14px;
+    height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+  .chat-empty{margin:auto;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+  .msg-wrap{display:flex;gap:8px;align-items:flex-start;max-width:88%}
+  .msg-wrap.user{align-self:flex-end;justify-content:flex-end}
+  .msg-wrap.ai{align-self:flex-start}
+  .mini-avatar{flex:none;width:30px;height:30px;border-radius:50%;background:#eaf3ff;
+    display:grid;place-items:center;font-size:16px}
+  .msg{padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+  .msg.user{background:var(--primary);color:#fff;border-bottom-right-radius:6px}
+  .msg.ai{background:#fff;border:1px solid var(--line);border-bottom-left-radius:6px}
+  .msg.ai.typing{color:var(--muted)}
+  .msg.ai.safe{background:#fff7f0;border-color:#ffd9c2}
+  .chat-input{display:flex;gap:10px;margin-top:14px}
+  .chat-input .input{flex:1}
+
+  /* 微交互 ============ */
+  .btn,.entry,.lesson-btn,.opt,.tab,.seg-btn,.m-btn,.wb-head{
+    transition:transform .16s ease, background-color .16s ease, border-color .16s ease,
+               box-shadow .16s ease, filter .16s ease;
+  }
+  .btn:hover{transform:scale(1.05);background-color:#e6eeff;filter:brightness(1.04)}
+  .btn-primary:hover{background-color:var(--primary-dark);filter:brightness(1.12)}
+  .btn-ghost:hover{background-color:#f2f7ff;border-color:#cfe0ff}
+  .btn:active{transform:translateY(1px) scale(.97)}
+  .entry:hover{transform:scale(1.03);background:#fff;border-color:var(--primary)}
+  .entry:active{transform:translateY(1px) scale(.99)}
+  .lesson-btn:hover{transform:scale(1.02)}
+  .lesson-btn:active{transform:translateY(1px) scale(.995)}
+  .opt:hover{transform:scale(1.02)}
+  .opt:active{transform:translateY(1px) scale(.995)}
+  .tab:hover{transform:scale(1.05)}
+  .seg-btn:hover{transform:scale(1.05)}
+  .m-btn:hover{transform:scale(1.03)}
+
+  @media (prefers-reduced-motion: reduce){
+    .btn,.entry,.lesson-btn,.opt,.tab,.seg-btn,.m-btn,.wb-head{transition:none}
+    .btn:hover,.entry:hover,.lesson-btn:hover,.opt:hover,.tab:hover,.seg-btn:hover,.m-btn:hover{transform:none}
+    .view.active{animation:none}
+    #pet{animation:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= 首页 ================= -->
+  <section id="home" class="view active">
+    <div class="topbar">
+      <div class="brand"><div class="logo">➗</div><span>数学猫——班级数学小助手</span></div>
+      <span class="pill">青岛版 · 四年级上册</span>
+    </div>
+    <div class="card hero">
+      <h1>选择你的身份</h1>
+      <p class="sub">老师布置课时，学生在线练习，成绩自动记录</p>
+      <div class="entries">
+        <button class="entry" data-go="teacher">
+          <span class="ico">👩‍🏫</span>
+          <strong>我是老师</strong>
+          <small>选择今天要练的课时</small>
+        </button>
+        <button class="entry" data-go="student">
+          <span class="ico">🎒</span>
+          <strong>我是学生</strong>
+          <small>答题、看讲解、比排行</small>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 老师视图 ================= -->
+  <section id="teacher" class="view">
+    <div class="topbar">
+      <div class="brand"><div class="logo">👩‍🏫</div><span>数学猫 · 老师端</span></div>
+      <button class="btn btn-ghost" data-go="home">← 返回首页</button>
+    </div>
+
+    <div class="card">
+      <h2>今天练哪个课时？</h2>
+      <p class="muted">点击课时即可布置，学生端会按该课时自动出题。</p>
+      <div id="lessonGrid" class="lesson-grid"></div>
+
+      <div id="curBox" class="notice warn" style="display:none"></div>
+
+      <div class="mode-box">
+        <div class="mode-row">
+          <span class="mode-label">出题方式</span>
+          <div class="seg" id="modeSeg">
+            <button class="seg-btn on" data-mode="bank">本地题库</button>
+            <button class="seg-btn" data-mode="api">联网 AI</button>
+          </div>
+        </div>
+        <div class="muted" id="modeHint"></div>
+        <button class="btn btn-ghost" id="resetToday" style="margin-top:10px">重置今日答题记录</button>
+      </div>
+
+      <div class="row between mt">
+        <h3 style="margin:0">布置记录</h3>
+        <button class="btn btn-ghost" id="clearLog">清空记录</button>
+      </div>
+      <ul id="logList" class="log mt"></ul>
+      <div id="logEmpty" class="empty">还没有布置记录</div>
+    </div>
+  </section>
+
+  <!-- ================= 学生视图 ================= -->
+  <section id="student" class="view">
+    <div class="topbar">
+      <div class="brand"><div class="logo">🎒</div><span>数学猫 · 学生端</span></div>
+      <div class="row nav-row">
+        <button class="btn btn-sm" id="toRank">🏆 排行榜</button>
+        <button class="btn btn-sm" id="toWrong">📕 错题本</button>
+        <button class="btn btn-sm" id="toAsk">🤖 我有疑问</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-go="home">← 返回首页</button>
+    </div>
+
+    <!-- 代号 -->
+    <div id="aliasStep" class="card field">
+      <h2 class="center">先取一个代号吧</h2>
+      <p class="muted center">建议用「名字 + 数字」，如 小明01；成绩只保存在这台电脑上</p>
+      <label for="aliasInput">我的代号</label>
+      <input id="aliasInput" class="input" maxlength="8" placeholder="2-8 位，如 小明01" autocomplete="off">
+      <div class="hint">中文、字母、数字、下划线都可以：小明01、xingxing_8、数学达人2</div>
+      <div id="aliasErr" class="err"></div>
+      <button class="btn btn-primary" id="aliasOk" style="width:100%">进入答题 →</button>
+    </div>
+
+    <!-- 答题 -->
+    <div id="quizStep" class="view">
+      <div class="card">
+        <div class="q-head">
+          <div>
+            <h2 style="margin:0" id="quizTitle">正在生成题目…</h2>
+            <div class="muted" id="quizSub"></div>
+          </div>
+          <div class="row">
+            <span class="pill" id="sourcePill">—</span>
+            <button class="btn btn-ghost" id="changeAlias">更换代号</button>
+          </div>
+        </div>
+        <div id="quizMount"><div id="quizBox"></div></div>
+        <div class="row between q-actions">
+          <button class="btn btn-ghost" id="regen">换一组题</button>
+          <button class="btn btn-primary" id="submitBtn" disabled>提交（0/3）</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果 -->
+    <div id="resultStep" class="view">
+      <div class="card">
+        <div class="q-head">
+          <h2 style="margin:0">答题结果</h2>
+          <div class="score-big" id="scoreLine">得分：0 / 3</div>
+        </div>
+        <div id="resultBox"></div>
+        <div class="row between mt">
+          <button class="btn btn-ghost" data-go="home">返回首页</button>
+          <button class="btn btn-primary" id="seeRank">看看排行榜 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 排行榜 -->
+    <div id="rankStep" class="view">
+      <div class="card">
+        <div class="q-head">
+          <h2 style="margin:0">🏆 排行榜</h2>
+          <button class="btn btn-ghost" id="rankBack">← 返回答题</button>
+        </div>
+        <div class="tabs">
+          <button class="tab on" data-tab="week">本周排行</button>
+          <button class="tab" data-tab="all">历史排行</button>
+        </div>
+        <div class="table-scroll">
+          <table id="rankTable">
+            <thead><tr id="rankHeadRow"></tr></thead>
+            <tbody id="rankBody"></tbody>
+          </table>
+        </div>
+        <div id="rankEmpty" class="empty" style="display:none">还没有人答题，快去当第一名吧！</div>
+        <p class="muted" id="rankNote" style="margin-top:14px"></p>
+      </div>
+    </div>
+
+    <!-- 错题本 -->
+    <div id="wrongStep" class="view">
+      <div class="card">
+        <div class="q-head">
+          <h2 style="margin:0">📕 错题本</h2>
+          <button class="btn btn-ghost btn-sm" id="clearWrong">清空错题本</button>
+        </div>
+        <div class="notice" id="wrongStat"></div>
+        <div id="wrongList"></div>
+        <div id="wrongEmpty" class="empty" style="display:none">还没有错题，继续保持！</div>
+      </div>
+    </div>
+
+    <!-- 我有疑问（AI 伙伴） -->
+    <div id="askStep" class="view">
+      <div class="card">
+        <div class="q-head">
+          <h2 style="margin:0">🤖 我有疑问</h2>
+          <button class="btn btn-ghost btn-sm" id="clearChat">清空聊天记录</button>
+        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <div class="chat-input">
+          <input id="chatInput" class="input" maxlength="200" placeholder="说说你的问题吧，比如：这道题我不会…" autocomplete="off">
+          <button class="btn btn-primary" id="chatSend">发送</button>
+        </div>
+        <p class="muted" id="chatMode" style="margin:10px 0 0;font-size:13px"></p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 老师密码 -->
+<div id="pwdModal">
+  <div class="pwd-card">
+    <div class="pwd-ico">🔒</div>
+    <h2>老师验证</h2>
+    <p class="muted" style="margin-bottom:14px">请输入密码后进入布置页面</p>
+    <input id="pwdInput" class="input" type="password" inputmode="numeric" maxlength="6" placeholder="6 位密码" autocomplete="off">
+    <div id="pwdErr" class="err"></div>
+    <div class="row">
+      <button class="btn" id="pwdCancel">取消</button>
+      <button class="btn btn-primary" id="pwdOk">进入</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- 桌宠 -->
+<div id="pet" title="点我布置课时">🐱</div>
+<div id="petMenu">
+  <p class="t">猫老师帮你布置课时</p>
+  <div id="petList"></div>
+</div>
+
+<script>
+/* ============================================================
+   0. 配置区（唯一需要修改的地方）
+   API_KEY 默认是占位符 00000000000，比赛现场替换成真实 Key 即可
+   未填写真实 Key 时，无论选哪种出题方式都会自动使用本地题库
+   可用模型：deepseek-chat / deepseek-reasoner 等 OpenAI 兼容接口
+   ============================================================ */
+const CONFIG = {
+  API_BASE: 'https://api.deepseek.com',
+  API_KEY: '00000000000',          // 占位符，比赛时替换成真实 Key
+  API_KEY_PLACEHOLDER: '00000000000',
+  MODEL: 'deepseek-chat',
+  QUESTION_COUNT: 10,
+  TEACHER_PASSWORD: '000000',
+  TIMEOUT_MS: 25000
+};
+
+/* ============================================================
+   1. 课时数据（顺序与课本目录严格一致）
+   type: normal 普通课时 / activity 主题活动 / smart 智慧广场 / graph 图形类
+   ============================================================ */
+const LESSONS = [
+  { name: '一、乘车中的学问（小数的初步认识）', type: 'normal' },
+  { name: '二、我家圆了安居梦（长方形、正方形的面积）', type: 'normal' },
+  { name: '三、绿色生态园（解决问题）', type: 'normal' },
+  { name: '★主题活动：寻找“宝藏”', type: 'activity' },
+  { name: '四、大数知多少（万以上数的认识）', type: 'normal' },
+  { name: '★智慧广场：尝试与枚举', type: 'smart' },
+  { name: '五、交通中的线（相交与平行）', type: 'graph' },
+  { name: '六、保护大天鹅（三位数乘两位数）', type: 'normal' },
+  { name: '★主题活动：1亿有多大', type: 'activity' },
+  { name: '七、订校服（条形统计图）', type: 'graph' },
+  { name: '★智慧广场：植树问题', type: 'smart' },
+  { name: '八、总复习', type: 'activity' }
+];
+
+/* ============================================================
+   2. 本地题库（兜底用：无 API Key、断网、接口报错时自动启用）
+      answer 是 options 的下标，展示时会自动打乱选项
+   ============================================================ */
+const BANK = [
+  // 0 小数的初步认识
+  [
+    { q: '0.5 读作（ ）', options: ['零点五', '五分之零点五', '零五', '五分'], answer: 0, explain: '小数点前读整数部分，小数点读作“点”，后面依次读每位数字。' },
+    { q: '3.6 元等于（ ）', options: ['3 元 6 角', '3 元 6 分', '36 元', '3 元 60 分'], answer: 0, explain: '小数点后第一位是角，3.6 元就是 3 元 6 角。' },
+    { q: '0.7 里面有（ ）个 0.1', options: ['7', '70', '10', '0.7'], answer: 0, explain: '一位小数表示十分之几，0.7 就是 7 个 0.1。' },
+    { q: '5.9 和 5.6 比较，结果是（ ）', options: ['5.9 大', '5.6 大', '一样大', '无法比较'], answer: 0, explain: '整数部分相同，再比十分位，9 > 6，所以 5.9 大。' },
+    { q: '十分之三写成小数是（ ）', options: ['0.3', '3.0', '0.03', '0.13'], answer: 0, explain: '十分之三就是 3 个 0.1，写作 0.3。' },
+    { q: '1 元 5 角写成小数是（ ）元', options: ['1.5', '15', '0.15', '1.05'], answer: 0, explain: '1 元不动，5 角是十分之五元，写作 1.5 元。' },
+    { q: '2.8 的整数部分是（ ）', options: ['2', '8', '28', '0.8'], answer: 0, explain: '小数点左边的部分是整数部分，2.8 的整数部分是 2。' },
+    { q: '0.9 和 1 相比（ ）', options: ['1 大', '0.9 大', '一样大', '无法比较'], answer: 0, explain: '0.9 比 1 少 0.1，所以 1 大。' },
+    { q: '小数点左边第一位是（ ）位', options: ['个位', '十位', '十分位', '百分位'], answer: 0, explain: '小数点左边第一位是个位，右边第一位是十分位。' },
+    { q: '把 1 米平均分成 10 份，每份是（ ）米', options: ['0.1', '1', '0.01', '10'], answer: 0, explain: '1 米的十分之一是 0.1 米，也就是 1 分米。' }
+  ],
+  // 1 长方形、正方形的面积
+  [
+    { q: '一个长方形长 5 分米、宽 3 分米，面积是（ ）', options: ['15 平方分米', '16 分米', '8 平方分米', '15 分米'], answer: 0, explain: '长方形面积 = 长 × 宽 = 5 × 3 = 15 平方分米。' },
+    { q: '边长 4 米的正方形，面积是（ ）', options: ['16 平方米', '8 平方米', '16 米', '4 平方米'], answer: 0, explain: '正方形面积 = 边长 × 边长 = 4 × 4 = 16 平方米。' },
+    { q: '一个长方形面积 24 平方米，长 6 米，宽是（ ）', options: ['4 米', '18 米', '4 平方米', '6 米'], answer: 0, explain: '宽 = 面积 ÷ 长 = 24 ÷ 6 = 4 米。' },
+    { q: '教室地面的面积大约是 50（ ）', options: ['平方米', '平方分米', '米', '平方厘米'], answer: 0, explain: '教室地面较大，用平方米作单位合适。' },
+    { q: '一个长方形长 7 厘米、宽 4 厘米，周长是（ ）', options: ['22 厘米', '28 厘米', '11 厘米', '14 厘米'], answer: 0, explain: '长方形周长 =（长 + 宽）× 2 =（7 + 4）× 2 = 22 厘米。' },
+    { q: '一个正方形面积 36 平方米，它的边长是（ ）', options: ['6 米', '9 米', '18 米', '36 米'], answer: 0, explain: '6 × 6 = 36，所以边长是 6 米。' },
+    { q: '1 平方米 =（ ）平方分米', options: ['100', '10', '1000', '10000'], answer: 0, explain: '1 米 = 10 分米，所以 1 平方米 = 10 × 10 = 100 平方分米。' },
+    { q: '一个教室长 8 米、宽 6 米，地面面积是（ ）', options: ['48 平方米', '28 米', '14 平方米', '48 米'], answer: 0, explain: '面积 = 长 × 宽 = 8 × 6 = 48 平方米。' },
+    { q: '长方形的面积等于（ ）', options: ['长 × 宽', '（长 + 宽）× 2', '边长 × 4', '长 + 宽'], answer: 0, explain: '长方形面积 = 长 × 宽；周长才是（长 + 宽）× 2。' },
+    { q: '边长 1 米的正方形，面积是（ ）', options: ['1 平方米', '4 米', '1 米', '4 平方米'], answer: 0, explain: '面积 = 1 × 1 = 1 平方米，周长才是 4 米。' }
+  ],
+  // 2 解决问题（连乘连除）
+  [
+    { q: '每箱饮料 12 瓶，每瓶 3 元，买 4 箱一共（ ）元', options: ['144', '36', '48', '16'], answer: 0, explain: '先算一箱 12 × 3 = 36 元，再算 4 箱 36 × 4 = 144 元。' },
+    { q: '96 个苹果，每 8 个装一盒，每 6 盒装一箱，一共能装（ ）箱', options: ['2', '12', '48', '72'], answer: 0, explain: '96 ÷ 8 = 12 盒，12 ÷ 6 = 2 箱。' },
+    { q: '每排 8 人，共 3 排，每人拿 2 面小旗，一共（ ）面', options: ['48', '24', '16', '6'], answer: 0, explain: '8 × 3 × 2 = 48 面。' },
+    { q: '每盒装 6 个鸡蛋，5 盒装一箱，30 个鸡蛋能装（ ）箱', options: ['1', '5', '6', '30'], answer: 0, explain: '30 ÷ 6 = 5 盒，5 ÷ 5 = 1 箱。' },
+    { q: '每袋大米 25 千克，8 袋一共（ ）千克', options: ['200', '33', '125', '16'], answer: 0, explain: '25 × 8 = 200 千克。' },
+    { q: '240 本书，每 6 本捆一捆，每 8 捆装一箱，能装（ ）箱', options: ['5', '8', '6', '48'], answer: 0, explain: '240 ÷ 6 = 40 捆，40 ÷ 8 = 5 箱。' },
+    { q: '每盒 12 支铅笔，买 5 盒，每支 2 元，一共（ ）元', options: ['120', '60', '24', '17'], answer: 0, explain: '12 × 5 = 60 支，60 × 2 = 120 元。' },
+    { q: '一辆车每小时行 60 千米，3 小时行（ ）千米', options: ['180', '20', '63', '120'], answer: 0, explain: '60 × 3 = 180 千米。' },
+    { q: '72 名同学平均分成 6 队，每队有（ ）人', options: ['12', '66', '6', '18'], answer: 0, explain: '72 ÷ 6 = 12 人。' },
+    { q: '3 个书架，每个书架 4 层，每层放 25 本书，一共放（ ）本', options: ['300', '32', '100', '75'], answer: 0, explain: '3 × 4 × 25 = 300 本。' }
+  ],
+  // 3 主题活动：寻找“宝藏”（综合应用，注明来源单元）
+  [
+    { q: '（第二单元·面积）藏宝图是长方形，长 8 分米、宽 5 分米，面积是（ ）', options: ['40 平方分米', '26 分米', '13 平方分米', '40 分米'], answer: 0, explain: '长方形面积 = 长 × 宽 = 8 × 5 = 40 平方分米。' },
+    { q: '（第四单元·大数）宝箱里有 5 万枚金币，也就是（ ）枚', options: ['50000', '5000', '500', '500000'], answer: 0, explain: '1 万 = 10000，5 万 = 50000。' },
+    { q: '（第六单元·乘法）寻宝小队有 12 组，每组 36 人，一共（ ）人', options: ['432', '48', '108', '312'], answer: 0, explain: '36 × 12 = 432 人。' },
+    { q: '（第一单元·小数）甲地距起点 2.5 米，乙地距起点 1.8 米，谁离起点更远？', options: ['甲更远', '乙更远', '一样远', '无法判断'], answer: 0, explain: '2.5 的整数部分是 2，1.8 的整数部分是 1，所以甲更远。' },
+    { q: '（第三单元·解决问题）寻宝小队 4 人，每人带 15 块饼干，一共带（ ）块', options: ['60', '19', '45', '4'], answer: 0, explain: '15 × 4 = 60 块。' },
+    { q: '（第五单元·相交与平行）宝图上的两条小路永不相交，它们的关系是（ ）', options: ['互相平行', '互相垂直', '相交', '重合'], answer: 0, explain: '同一平面内永不相交的两条直线互相平行。' },
+    { q: '（第七单元·统计图）三组寻宝成绩：一组 12 分、二组 9 分、三组 15 分，得分最高的是（ ）', options: ['三组', '一组', '二组', '一样高'], answer: 0, explain: '15 > 12 > 9，三组最高。' },
+    { q: '（第二单元·面积）藏宝盒的底面是边长 3 分米的正方形，面积是（ ）', options: ['9 平方分米', '12 分米', '6 平方分米', '9 分米'], answer: 0, explain: '正方形面积 = 3 × 3 = 9 平方分米。' },
+    { q: '（第六单元·乘法）每支寻宝小队 25 人，12 支小队一共（ ）人', options: ['300', '37', '150', '120'], answer: 0, explain: '25 × 12 = 300 人。' },
+    { q: '（第四单元·大数）宝藏重 8 万克，也就是（ ）克', options: ['80000', '8000', '800', '800000'], answer: 0, explain: '8 万 = 8 × 10000 = 80000。' }
+  ],
+  // 4 万以上数的认识
+  [
+    { q: '10 个一万是（ ）', options: ['十万', '一亿', '一万', '一百万'], answer: 0, explain: '10 个一万就是十万。' },
+    { q: '305000000 读作（ ）', options: ['三亿零五百万', '三亿五百万', '三十亿五百万', '三亿零五十万'], answer: 0, explain: '先分级：3 亿 | 0500 万，读作三亿零五百万。' },
+    { q: '670000000 改写成用“万”作单位是（ ）', options: ['67000 万', '6700 万', '670 万', '670000 万'], answer: 0, explain: '去掉末尾 4 个 0：670000000 = 67000 万。' },
+    { q: '由 5 个亿和 3 个万组成的数是（ ）', options: ['500030000', '53000000', '500000300', '50300000'], answer: 0, explain: '5 个亿是 500000000，3 个万是 30000，合起来是 500030000。' },
+    { q: '100000 是（ ）个一万', options: ['10', '100', '1000', '1'], answer: 0, explain: '100000 ÷ 10000 = 10。' },
+    { q: '一个数最高位是千万位，它是（ ）', options: ['八位数', '七位数', '九位数', '六位数'], answer: 0, explain: '从个位到千万位一共 8 个数位，所以是八位数。' },
+    { q: '620000 读作（ ）', options: ['六十二万', '六百二十万', '六万二千', '六千二百万'], answer: 0, explain: '分级后读：62 万，读作六十二万。' },
+    { q: '由 8 个千万和 5 个万组成的数是（ ）', options: ['80050000', '85000000', '8050000', '80005000'], answer: 0, explain: '8 个千万是 80000000，5 个万是 50000，合起来是 80050000。' },
+    { q: '和 99999 相邻的两个数是（ ）', options: ['99998 和 100000', '99990 和 100000', '100000 和 100001', '9998 和 10000'], answer: 0, explain: '99999 前面是 99998，后面是 100000。' },
+    { q: '把 480000 省略万位后面的尾数约是（ ）', options: ['48 万', '5 万', '49 万', '480 万'], answer: 0, explain: '万位后面是 0，直接舍去，约是 48 万。' }
+  ],
+  // 5 尝试与枚举
+  [
+    { q: '用 1、2、3 三张数字卡片摆两位数（数字不重复），能摆出（ ）个', options: ['6', '3', '9', '12'], answer: 0, explain: '十位有 3 种选法，个位剩 2 种，3 × 2 = 6 个。' },
+    { q: '笼里有鸡和兔共 8 只，一共 26 条腿，兔有（ ）只', options: ['5', '3', '4', '6'], answer: 0, explain: '假设全是鸡是 16 条腿，少了 10 条，每只兔多 2 条，10 ÷ 2 = 5 只兔。' },
+    { q: '3 元和 5 元的笔共买 7 支，一共花 31 元，5 元的买了（ ）支', options: ['5', '3', '4', '2'], answer: 0, explain: '假设全买 3 元的要 21 元，多出 10 元，每支差 2 元，10 ÷ 2 = 5 支。' },
+    { q: '比 40 大、比 50 小，并且是 7 的倍数的数共有（ ）个', options: ['2', '1', '3', '4'], answer: 0, explain: '42 和 49 都是 7 的倍数，共 2 个。' },
+    { q: '用 2、5、7 三张卡片摆三位数（不重复），能摆出（ ）个', options: ['6', '3', '9', '27'], answer: 0, explain: '百位 3 种，十位 2 种，个位 1 种，3 × 2 × 1 = 6 个。' },
+    { q: '自行车和三轮车共 9 辆，共有 22 个轮子，三轮车有（ ）辆', options: ['4', '5', '3', '6'], answer: 0, explain: '假设全是自行车有 18 个轮子，少 4 个，每辆三轮车多 1 个，所以三轮车 4 辆。' },
+    { q: '1 元和 5 元的纸币共 6 张，一共 18 元，5 元的有（ ）张', options: ['3', '4', '2', '5'], answer: 0, explain: '假设全是 1 元是 6 元，差 12 元，每换一张 5 元多 4 元，12 ÷ 4 = 3 张。' },
+    { q: '用 1、2、3、4 四张卡片摆两位数（不重复），能摆出（ ）个', options: ['12', '8', '16', '6'], answer: 0, explain: '十位 4 种，个位剩 3 种，4 × 3 = 12 个。' },
+    { q: '一个两位数，十位上的数比个位上的数大 3，这样的两位数有（ ）个', options: ['7', '6', '8', '5'], answer: 0, explain: '列举出来：30、41、52、63、74、85、96，共 7 个。' },
+    { q: '从 2、4、6 中选两个数组成两位数（不重复），其中最大的是（ ）', options: ['64', '46', '62', '66'], answer: 0, explain: '要最大，十位选最大的 6，个位选剩下的 4，即 64。' }
+  ],
+  // 6 相交与平行
+  [
+    { q: '同一平面内两条直线永不相交，它们的关系是（ ）', options: ['互相平行', '互相垂直', '相交', '重合'], answer: 0, explain: '同一平面内不相交的两条直线互相平行。' },
+    { q: '两条直线相交成直角，这两条直线（ ）', options: ['互相垂直', '互相平行', '重合', '无法确定'], answer: 0, explain: '相交成直角的两条直线互相垂直。' },
+    { q: '长方形的对边（ ）', options: ['互相平行', '互相垂直', '相交', '重合'], answer: 0, explain: '长方形对边互相平行，相邻两边互相垂直。' },
+    { q: '两条平行线之间的距离（ ）', options: ['处处相等', '越远越大', '越远越小', '无法确定'], answer: 0, explain: '平行线之间所有垂直线段的长度都相等。' },
+    { q: '在同一平面内，两条直线不相交就一定（ ）', options: ['互相平行', '互相垂直', '重合', '无法确定'], answer: 0, explain: '同一平面内两条直线只有相交和平行两种关系。' },
+    { q: '黑板相邻的两条边（ ）', options: ['互相垂直', '互相平行', '相交但不垂直', '重合'], answer: 0, explain: '长方形的相邻两边相交成直角，所以互相垂直。' },
+    { q: '过直线外一点画已知直线的平行线，能画（ ）条', options: ['1', '2', '无数', '0'], answer: 0, explain: '过直线外一点只能画 1 条平行线。' },
+    { q: '过一点画已知直线的垂线，能画（ ）条', options: ['1', '2', '无数', '0'], answer: 0, explain: '过一点画已知直线的垂线只有 1 条。' },
+    { q: '两条直线互相垂直，它们的交点叫做（ ）', options: ['垂足', '顶点', '端点', '中点'], answer: 0, explain: '两条垂线的交点叫垂足。' },
+    { q: '铁路的两条铁轨（ ）', options: ['互相平行', '互相垂直', '相交', '重合'], answer: 0, explain: '两条铁轨之间的距离相同、永不相交，互相平行。' }
+  ],
+  // 7 三位数乘两位数
+  [
+    { q: '125 × 24 =（ ）', options: ['3000', '300', '2400', '3120'], answer: 0, explain: '125 × 24 = 125 × 8 × 3 = 1000 × 3 = 3000。' },
+    { q: '208 × 15 =（ ）', options: ['3120', '3020', '2080', '312'], answer: 0, explain: '208 × 15 = 208 × 10 + 208 × 5 = 2080 + 1040 = 3120。' },
+    { q: '三位数乘两位数，积最少是（ ）位数', options: ['四', '三', '五', '六'], answer: 0, explain: '最小是 100 × 10 = 1000，是四位数。' },
+    { q: '每群候鸟 132 只，12 群一共（ ）只', options: ['1584', '144', '264', '1320'], answer: 0, explain: '132 × 12 = 1584 只。' },
+    { q: '305 × 24 =（ ）', options: ['7320', '732', '73200', '3020'], answer: 0, explain: '305 × 24 = 305 × 20 + 305 × 4 = 6100 + 1220 = 7320。' },
+    { q: '456 × 12 =（ ）', options: ['5472', '468', '547', '4472'], answer: 0, explain: '456 × 12 = 456 × 10 + 456 × 2 = 4560 + 912 = 5472。' },
+    { q: '150 × 40 =（ ）', options: ['6000', '600', '190', '60000'], answer: 0, explain: '15 × 4 = 60，末尾再添两个 0，得 6000。' },
+    { q: '估算 198 × 21，结果最接近（ ）', options: ['4000', '400', '40000', '2000'], answer: 0, explain: '198 看作 200，21 看作 20，200 × 20 = 4000。' },
+    { q: '一个因数不变，另一个因数扩大到原来的 10 倍，积（ ）', options: ['也扩大到原来的 10 倍', '不变', '缩小到原来的十分之一', '扩大到原来的 100 倍'], answer: 0, explain: '一个因数不变，另一个因数扩大几倍，积就扩大几倍。' },
+    { q: '25 × 16 × 4 =（ ）', options: ['1600', '160', '6400', '400'], answer: 0, explain: '先算 25 × 4 = 100，再算 100 × 16 = 1600。' }
+  ],
+  // 8 主题活动：1亿有多大
+  [
+    { q: '1 亿 =（ ）个一万', options: ['10000', '1000', '100', '100000'], answer: 0, explain: '100000000 ÷ 10000 = 10000。' },
+    { q: '100 张纸约厚 1 厘米，1 亿张纸约厚（ ）', options: ['1 万米', '1 千米', '100 米', '10 万米'], answer: 0, explain: '1 亿 ÷ 100 = 100 万个 1 厘米 = 100 万厘米 = 1 万米。' },
+    { q: '1 秒数 1 个数，从 1 数到 1 亿大约需要（ ）', options: ['3 年多', '3 个月', '3 天', '30 年'], answer: 0, explain: '1 亿秒 ≈ 1157 天 ≈ 3.2 年。' },
+    { q: '1 万张纸约厚 1 米，1 亿张纸叠起来约（ ）', options: ['1 万米', '1 千米', '1 万千米', '100 米'], answer: 0, explain: '1 亿是 1 万的 1 万倍，所以约 1 万米。' },
+    { q: '1 亿零 1 写作（ ）', options: ['100000001', '10000001', '110000000', '1000001'], answer: 0, explain: '1 亿是 100000000，再加 1 个就是 100000001。' },
+    { q: '1000 万是（ ）个十万', options: ['100', '10', '1000', '10000'], answer: 0, explain: '1000 万 ÷ 10 万 = 100。' },
+    { q: '1 万 × 1 万 =（ ）', options: ['一亿', '二万', '一千万', '一百万'], answer: 0, explain: '10000 × 10000 = 100000000，就是一亿。' },
+    { q: '1 亿个 1 厘米长的方块排成一排，约长（ ）', options: ['1000 千米', '100 千米', '10000 千米', '10 千米'], answer: 0, explain: '1 亿厘米 = 100 万米 = 1000 千米。' },
+    { q: '100 万枚硬币，每 100 枚叠 1 米高，一共高（ ）米', options: ['10000', '1000', '100', '100000'], answer: 0, explain: '1000000 ÷ 100 = 10000 米。' },
+    { q: '每人节约 1 克水，14 亿人一共可以节约约（ ）', options: ['1400 吨', '140 吨', '14000 吨', '14 吨'], answer: 0, explain: '14 亿克 = 1400 千克 × 1000 = 1400 吨。' }
+  ],
+  // 9 条形统计图
+  [
+    { q: '条形统计图能清楚地看出（ ）', options: ['各种数量的多少', '变化趋势', '比例关系', '平均数'], answer: 0, explain: '条形统计图用直条的长短表示数量的多少。' },
+    { q: '条形统计图中一格代表 5 人，某班涂了 6 格，表示（ ）人', options: ['30', '11', '5', '6'], answer: 0, explain: '6 × 5 = 30 人。' },
+    { q: '（文字描述）四个班订校服人数：一班 32 人、二班 28 人、三班 35 人、四班 30 人，人数最多的是（ ）', options: ['三班', '一班', '四班', '二班'], answer: 0, explain: '35 最大，所以三班人数最多。' },
+    { q: '画条形统计图时，直条越长表示数量（ ）', options: ['越多', '越少', '不变', '无法判断'], answer: 0, explain: '直条的长短表示数量的多少，越长表示越多。' },
+    { q: '喜欢苹果 12 人、香蕉 8 人、橘子 15 人，喜欢橘子的比香蕉多（ ）人', options: ['7', '3', '4', '27'], answer: 0, explain: '15 − 8 = 7 人。' },
+    { q: '一格代表 4 人，涂 1 格半表示（ ）人', options: ['6', '4', '8', '5'], answer: 0, explain: '半格是 2 人，4 + 2 = 6 人。' },
+    { q: '与统计表相比，条形统计图的优点是（ ）', options: ['更直观，一眼看出多少', '更复杂', '不需要数据', '更不准确'], answer: 0, explain: '条形统计图用直条表示数据，看起来更直观。' },
+    { q: '某班 40 人订校服：L 号 15 人、M 号 20 人、S 号 5 人，订得最多的是（ ）', options: ['M 号', 'L 号', 'S 号', '一样多'], answer: 0, explain: '20 > 15 > 5，M 号最多。' },
+    { q: '一格代表 5 人，一个班 45 人应该涂（ ）格', options: ['9', '5', '45', '4'], answer: 0, explain: '45 ÷ 5 = 9 格。' },
+    { q: '条形统计图中，每格表示的数量叫（ ）', options: ['一格代表的数量', '总人数', '平均数', '最多的人数'], answer: 0, explain: '画图前要先确定一格代表多少，看纵轴上的数。' }
+  ],
+  // 10 植树问题
+  [
+    { q: '一条路长 100 米，每 5 米栽一棵树（两端都栽），共栽（ ）棵', options: ['21', '20', '19', '22'], answer: 0, explain: '100 ÷ 5 = 20 段，两端都栽棵数 = 段数 + 1 = 21 棵。' },
+    { q: '（接上题）如果两端都不栽，共栽（ ）棵', options: ['19', '21', '20', '18'], answer: 0, explain: '两端都不栽棵数 = 段数 − 1 = 19 棵。' },
+    { q: '圆形花坛周长 40 米，每 4 米栽一棵，共栽（ ）棵', options: ['10', '11', '9', '40'], answer: 0, explain: '封闭图形棵数 = 段数 = 40 ÷ 4 = 10 棵。' },
+    { q: '从第 1 根电线杆到第 10 根，每两根间隔 30 米，一共（ ）米', options: ['270', '300', '240', '330'], answer: 0, explain: '中间有 9 个间隔，9 × 30 = 270 米。' },
+    { q: '小路长 48 米，每 6 米栽一棵（两端都栽），共栽（ ）棵', options: ['9', '8', '7', '10'], answer: 0, explain: '48 ÷ 6 = 8 段，两端都栽 8 + 1 = 9 棵。' },
+    { q: '走廊长 24 米，每 3 米放一盆花（只放一端），共放（ ）盆', options: ['8', '9', '7', '24'], answer: 0, explain: '只放一端，盆数 = 段数 = 24 ÷ 3 = 8 盆。' },
+    { q: '把一根木头锯成 5 段，每锯一次需要 4 分钟，一共需要（ ）分钟', options: ['16', '20', '5', '12'], answer: 0, explain: '锯成 5 段要锯 4 次，4 × 4 = 16 分钟。' },
+    { q: '5 名学生排成一排，相邻两人相隔 2 米，第一位到最后一位相距（ ）米', options: ['8', '10', '6', '4'], answer: 0, explain: '5 人之间有 4 个间隔，4 × 2 = 8 米。' },
+    { q: '正方形池塘边长 20 米，四周每 5 米栽一棵，共栽（ ）棵', options: ['16', '17', '15', '20'], answer: 0, explain: '周长 20 × 4 = 80 米，80 ÷ 5 = 16 棵。' },
+    { q: '从 1 楼走到 3 楼用 20 秒，照这样从 1 楼走到 6 楼需要（ ）秒', options: ['50', '40', '60', '100'], answer: 0, explain: '1 楼到 3 楼走 2 层用 20 秒，每层 10 秒；1 到 6 楼走 5 层，共 50 秒。' }
+  ],
+  // 11 总复习
+  [
+    { q: '（第一单元·小数）3.4 和 3.2 相比（ ）', options: ['3.4 大', '3.2 大', '一样大', '无法比较'], answer: 0, explain: '整数部分相同，十分位 4 > 2，所以 3.4 大。' },
+    { q: '（第二单元·面积）长 12 米、宽 8 米的菜地，面积是（ ）平方米', options: ['96', '40', '20', '80'], answer: 0, explain: '12 × 8 = 96 平方米。' },
+    { q: '（第四单元·大数）一个数由 7 个亿和 2 个万组成，这个数是（ ）', options: ['700020000', '72000000', '700000200', '700200000'], answer: 0, explain: '7 亿是 700000000，2 万是 20000，合起来是 700020000。' },
+    { q: '（第六单元·乘法）215 × 30 =（ ）', options: ['6450', '645', '6540', '6150'], answer: 0, explain: '215 × 30 = 215 × 3 × 10 = 645 × 10 = 6450。' },
+    { q: '（第五单元·相交与平行）两条直线相交成直角，这两条直线（ ）', options: ['互相垂直', '互相平行', '重合', '无法确定'], answer: 0, explain: '相交成直角的两条直线互相垂直。' },
+    { q: '（第七单元·统计图）一格代表 3 人，涂 7 格表示（ ）人', options: ['21', '10', '7', '3'], answer: 0, explain: '7 × 3 = 21 人。' },
+    { q: '（第三单元·解决问题）每箱 15 千克，每千克 4 元，买 3 箱要（ ）元', options: ['180', '60', '45', '22'], answer: 0, explain: '一箱 15 × 4 = 60 元，3 箱 60 × 3 = 180 元。' },
+    { q: '（第六单元·乘法）308 × 25 =（ ）', options: ['7700', '770', '7500', '30825'], answer: 0, explain: '308 × 25 = 308 × 100 ÷ 4 = 30800 ÷ 4 = 7700。' },
+    { q: '（第四单元·大数）450000 改写成用“万”作单位是（ ）', options: ['45 万', '450 万', '4.5 万', '4500 万'], answer: 0, explain: '去掉末尾 4 个 0，450000 = 45 万。' },
+    { q: '（第一单元·小数）0.8 和 0.6 相比（ ）', options: ['0.8 大', '0.6 大', '一样大', '无法比较'], answer: 0, explain: '整数部分都是 0，十分位 8 > 6，所以 0.8 大。' }
+  ]
+];
+
+/* ============================================================
+   3. 通用工具
+   ============================================================ */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const KEY = {
+  current: 'mathbot_current',
+  alias: 'mathbot_alias',
+  scores: 'mathbot_scores',
+  log: 'mathbot_log',
+  mode: 'mathbot_mode',
+  wrong: 'mathbot_wrongbook',
+  chat: 'mathbot_chat'
+};
+
+function lsGet(k, d) {
+  try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }
+  catch (e) { return d; }
+}
+function lsSet(k, v) {
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 隐私模式忽略 */ }
+}
+function fmtTime(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function fmtDate(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+// ISO 周：YYYY-Www
+function isoWeek(ts) {
+  const d = new Date(ts);
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = (t.getDay() + 6) % 7;      // 周一 = 0
+  t.setDate(t.getDate() - day + 3);      // 移到本周周四
+  const firstThu = new Date(t.getFullYear(), 0, 4);
+  const fday = (firstThu.getDay() + 6) % 7;
+  firstThu.setDate(firstThu.getDate() - fday + 3);
+  const week = 1 + Math.round((t - firstThu) / (7 * 86400000));
+  return `${t.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+// 打乱选项顺序并重算正确答案下标（防止答案总在 A）
+function shuffleOptions(list) {
+  return list.map(item => {
+    const correctText = item.options[item.answer];
+    const opts = shuffle(item.options.slice());
+    return Object.assign({}, item, { options: opts, answer: opts.indexOf(correctText) });
+  });
+}
+function findLesson(name) {
+  const i = LESSONS.findIndex(l => l.name === name);
+  return i < 0 ? null : { index: i, lesson: LESSONS[i] };
+}
+
+/* ============================================================
+   4. 视图切换
+   ============================================================ */
+let currentView = 'home';
+function show(id) {
+  if (id === 'teacher' && !teacherUnlocked()) { openPwd(); return; }
+  currentView = id;
+  document.body.classList.toggle('view-teacher', id === 'teacher');
+  closePet();
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'teacher') { renderLessons(); renderLog(); renderCurrent(); renderMode(); }
+  if (id === 'student') openStudent();
+}
+
+/* ---- 老师密码 ---- */
+function teacherUnlocked() {
+  try { return sessionStorage.getItem('mathbot_teacher_ok') === '1'; } catch (e) { return false; }
+}
+function openPwd() {
+  $('#pwdModal').classList.add('on');
+  $('#pwdInput').value = '';
+  $('#pwdErr').textContent = '';
+  setTimeout(() => $('#pwdInput').focus(), 60);
+}
+function closePwd() { $('#pwdModal').classList.remove('on'); }
+function tryPwd() {
+  const v = $('#pwdInput').value.trim();
+  if (v !== CONFIG.TEACHER_PASSWORD) {
+    $('#pwdErr').textContent = '密码不对，再试一次';
+    $('#pwdInput').select();
+    return;
+  }
+  try { sessionStorage.setItem('mathbot_teacher_ok', '1'); } catch (e) {}
+  closePwd();
+  show('teacher');
+}
+$('#pwdOk').onclick = tryPwd;
+$('#pwdCancel').onclick = closePwd;
+$('#pwdInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryPwd(); });
+$('#pwdModal').addEventListener('click', e => { if (e.target.id === 'pwdModal') closePwd(); });
+
+/* ---- 轻提示 ---- */
+let toastTimer = null;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 2400);
+}
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if (go) show(go.dataset.go);
+});
+
+/* ============================================================
+   F1 / F2  老师端
+   ============================================================ */
+function renderLessons() {
+  const box = $('#lessonGrid');
+  const cur = lsGet(KEY.current, null);
+  box.innerHTML = LESSONS.map((l, i) => `
+    <button class="lesson-btn ${l.type === 'normal' ? '' : 'star'} ${cur === l.name ? 'cur' : ''}" data-idx="${i}">
+      <span class="no">${i + 1}</span><span>${l.name}</span>
+    </button>`).join('');
+  $$('.lesson-btn', box).forEach(b => b.onclick = () => assign(LESSONS[+b.dataset.idx]));
+}
+
+function assign(lesson) {
+  lsSet(KEY.current, lesson.name);
+  const log = lsGet(KEY.log, []);
+  log.unshift({ name: lesson.name, ts: Date.now() });
+  lsSet(KEY.log, log.slice(0, 50));
+  renderLessons();
+  renderCurrent();
+  renderLog();
+  closePet();
+  toast(currentView === 'student'
+    ? '已布置：' + lesson.name + '，可以开始答题了'
+    : '已布置：' + lesson.name);
+}
+
+function renderCurrent() {
+  const cur = lsGet(KEY.current, null);
+  const box = $('#curBox');
+  if (!cur) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.className = 'notice ok';
+  box.innerHTML = `✅ 已布置：<b>${cur}</b><br><span class="muted">学生现在进入“我是学生”，就会看到这个课时的题。</span>`;
+}
+
+function renderLog() {
+  const log = lsGet(KEY.log, []);
+  const ul = $('#logList');
+  $('#logEmpty').style.display = log.length ? 'none' : 'block';
+  ul.style.display = log.length ? 'block' : 'none';
+  ul.innerHTML = log.map(r => `<li><span>${r.name}</span><span>${fmtTime(r.ts)}</span></li>`).join('');
+}
+$('#clearLog').onclick = () => {
+  if (!confirm('确定清空布置记录吗？')) return;
+  lsSet(KEY.log, []);
+  renderLog();
+};
+
+/* ---- 出题方式：本地题库 / 联网 AI ---- */
+const MODE_BANK = 'bank', MODE_API = 'api';
+function getMode() { return lsGet(KEY.mode, MODE_BANK) === MODE_API ? MODE_API : MODE_BANK; }
+function apiReady() {
+  return !!CONFIG.API_KEY && CONFIG.API_KEY !== CONFIG.API_KEY_PLACEHOLDER;
+}
+function renderMode() {
+  const m = getMode();
+  $$('#modeSeg .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  const hint = $('#modeHint');
+  if (m === MODE_API && !apiReady()) {
+    hint.textContent = '⚠️ 还没有填写真实的 API Key（当前是占位符），学生答题时会自动使用本地题库。';
+  } else if (m === MODE_API) {
+    hint.textContent = '联网出题：每次由 AI 现场生成题目，网络异常时自动回退本地题库。';
+  } else {
+    hint.textContent = '本地题库：不联网也能用，每课时 10 道随机抽取，稳定不出错。';
+  }
+}
+$$('#modeSeg .seg-btn').forEach(b => b.onclick = () => {
+  lsSet(KEY.mode, b.dataset.mode);
+  renderMode();
+  toast('出题方式：' + (b.dataset.mode === MODE_API ? '联网 AI' : '本地题库'));
+});
+$('#resetToday').onclick = () => {
+  const v = prompt('重置哪个代号的今日记录？\n（输入代号；直接确定则清空今天所有人的记录）', '');
+  if (v === null) return;
+  const who = v.trim();
+  const today = dayKey(Date.now());
+  const all = lsGet(KEY.scores, []);
+  const keep = all.filter(r => !(dayKey(r.ts) === today && (!who || r.alias === who)));
+  lsSet(KEY.scores, keep);
+  toast(who ? '已重置「' + who + '」今日答题记录' : '已清空今日所有人的答题记录');
+};
+
+/* ============================================================
+   F4  学生端代号
+   ============================================================ */
+const ALIAS_RE = /^[\u4e00-\u9fa5A-Za-z0-9_]{2,8}$/;
+let pendingAlias = '';
+
+function openStudent() {
+  const alias = lsGet(KEY.alias, '');
+  if (!alias) {
+    $('#aliasStep').classList.add('card');
+    $('#aliasStep').style.display = 'block';
+    $('#quizStep').classList.remove('active');
+    $('#resultStep').classList.remove('active');
+    $('#rankStep').classList.remove('active');
+    $('#aliasInput').focus();
+  } else {
+    startQuiz();
+  }
+}
+
+function validateAlias(v) {
+  if (!v) return '代号不能为空';
+  if (/\s/.test(v)) return '代号里不能有空格';
+  if (v.length < 2 || v.length > 8) return '代号需要 2-8 位';
+  if (!ALIAS_RE.test(v)) return '只能用中文、字母、数字或下划线（不能有符号）';
+  return '';
+}
+
+$('#aliasOk').onclick = () => {
+  const v = $('#aliasInput').value.trim();
+  const err = validateAlias(v);
+  $('#aliasErr').textContent = err;
+  if (err) return;
+  lsSet(KEY.alias, v);
+  startQuiz();
+};
+$('#aliasInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#aliasOk').click(); });
+$('#aliasInput').addEventListener('input', () => { $('#aliasErr').textContent = ''; });
+
+$('#changeAlias').onclick = () => {
+  const v = prompt('输入新的代号（4-8 位字母、数字或下划线）：', lsGet(KEY.alias, ''));
+  if (v === null) return;
+  const err = validateAlias(v.trim());
+  if (err) { alert(err); return; }
+  lsSet(KEY.alias, v.trim());
+  $('#quizSub').textContent = '当前代号：' + v.trim();
+};
+
+
+/* ============================================================
+   F3  出题（AI 优先，失败自动回退本地题库）
+   ============================================================ */
+let state = { questions: [], picked: [], submitted: false, source: '', lessonName: '' };
+
+function setStep(id) {
+  document.body.classList.toggle('quiz-mode', id === 'quizStep' || id === 'resultStep');
+  ['aliasStep', 'quizStep', 'resultStep', 'rankStep', 'wrongStep', 'askStep'].forEach(s => {
+    const el = $('#' + s);
+    el.classList.toggle('active', s === id);
+    if (s === 'aliasStep') el.style.display = (s === id) ? 'block' : 'none';
+  });
+}
+
+function startQuiz() {
+  $('#quizMount').appendChild($('#quizBox')); // 结果页可能借用过题目区，先归位
+  const cur = lsGet(KEY.current, null);
+  const found = cur ? findLesson(cur) : null;
+  const alias = lsGet(KEY.alias, '');
+  setStep('quizStep');
+  const done = alias ? todayRecord(alias) : null;
+  if (done) { showDone(done); return; }
+  const acts = $('#quizStep .q-actions');
+  if (acts) acts.style.display = 'flex';
+  if (!found) {
+    $('#quizTitle').textContent = '老师还没有布置课时';
+    $('#quizSub').textContent = '';
+    $('#sourcePill').textContent = '—';
+    $('#quizBox').innerHTML = `<div class="notice warn">请先让老师到“老师端”选择今天要练的课时，再回来答题。</div>`;
+    $('#submitBtn').disabled = true;
+    return;
+  }
+  state.lessonName = cur;
+  $('#quizTitle').textContent = cur;
+  $('#quizSub').textContent = '当前代号：' + lsGet(KEY.alias, '');
+  $('#quizBox').innerHTML = `<div class="notice">⏳ 正在准备 ${CONFIG.QUESTION_COUNT} 道题，请稍等…</div>`;
+  $('#submitBtn').disabled = true;
+  loadQuestions(found);
+}
+
+// 每天只能答一次：显示今天的成绩
+function showDone(rec) {
+  $('#quizTitle').textContent = '今天的题已经答完啦';
+  $('#quizSub').textContent = '当前代号：' + rec.alias;
+  $('#sourcePill').textContent = '已完成';
+  $('#quizBox').innerHTML = `
+    <div class="notice ok">
+      🎉 <b>${escapeHTML(rec.alias)}</b> 今天已经答过一组，得分
+      <b>${rec.score} / ${rec.total || CONFIG.QUESTION_COUNT}</b>。
+      <br>每人每天只能答一次，明天再来吧！
+    </div>
+    <div class="row"><button class="btn btn-primary" id="doneRank">看看本周排行 →</button></div>`;
+  const btn = $('#submitBtn');
+  btn.disabled = true;
+  btn.textContent = '今日已完成';
+  const acts = $('#quizStep .q-actions');
+  if (acts) acts.style.display = 'none';
+  const b = $('#doneRank');
+  if (b) b.onclick = () => { setStep('rankStep'); renderRank('week'); };
+}
+
+function buildPrompt(lesson) {
+  const lines = [
+    '你是一名小学四年级数学老师，学生使用 2026 新版青岛版（六三制）四年级上册教材。',
+    `本次要考查的课时是：「${lesson.name}」。`,
+    '要求：',
+    `1. 只考该课时范围内的内容，不得超纲；难度为小学四年级。`,
+    `2. 生成 ${CONFIG.QUESTION_COUNT} 道单项选择题，每题 4 个选项，只有一个正确答案。`,
+    '3. 必须先自己计算 / 推理一遍，再确定正确答案，确保答案绝对正确。',
+    '4. 每题附带一句不超过 30 字的讲解。',
+    '5. 只返回 JSON，不要 markdown 代码块、不要任何解释文字。'
+  ];
+  if (lesson.type === 'activity') {
+    lines.push(`6. 如果课时名包含“主题活动”或“总复习”，则出 ${CONFIG.QUESTION_COUNT} 道综合应用类选择题，题目要说明来源于哪个单元，不要凭空编造实践过程。`);
+  }
+  if (lesson.type === 'graph') {
+    lines.push('6. 涉及图形（相交、平行、统计图）的题目，用文字描述图形关系，例如“两条直线永不相交，它们的关系是”，不要使用图片。');
+  }
+  if (lesson.type === 'smart') {
+    lines.push('6. 只考智慧广场课内基础方法（列表枚举、植树问题的基本模型），不要出竞赛级难题，不得使用图片。');
+  }
+  lines.push('返回 JSON 结构：{"questions":[{"q":"题目文字","options":["选项A","选项B","选项C","选项D"],"answer":0,"explain":"一句讲解"}]}');
+  lines.push('answer 为正确选项的下标（0-3）。');
+  return lines.join('\n');
+}
+
+async function loadQuestions(found) {
+  const { lesson } = found;
+  if (getMode() !== 'api') {
+    return useBank(found, '本地题库');
+  }
+  if (!apiReady()) {
+    return useBank(found, '本地题库（Key 未填写）');
+  }
+  try {
+    const qs = await askAI(lesson);
+    if (!qs.length) throw new Error('AI 没有返回题目');
+    state.questions = shuffleOptions(qs).slice(0, CONFIG.QUESTION_COUNT);
+    state.picked = new Array(state.questions.length).fill(-1);
+    state.submitted = false;
+    state.source = 'AI 出题';
+    renderQuiz();
+  } catch (err) {
+    console.warn('[出题失败，改用本地题库]', err);
+    useBank(found, '本地题库（AI 暂不可用）');
+  }
+}
+
+function useBank(found, label) {
+  const pool = BANK[found.index] || [];
+  const picked = shuffle(pool.slice()).slice(0, CONFIG.QUESTION_COUNT);
+  state.questions = shuffleOptions(picked);
+  state.picked = new Array(state.questions.length).fill(-1);
+  state.submitted = false;
+  state.source = label;
+  renderQuiz();
+}
+
+async function askAI(lesson) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
+  const url = CONFIG.API_BASE.replace(/\/+$/, '') + '/chat/completions';
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + CONFIG.API_KEY
+      },
+      body: JSON.stringify({
+        model: CONFIG.MODEL,
+        temperature: 0.8,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: '你只输出 JSON，不输出任何其他文字。' },
+          { role: 'user', content: buildPrompt(lesson) }
+        ]
+      })
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  const text = data && data.choices && data.choices[0] && data.choices[0].message
+    ? data.choices[0].message.content : '';
+  return validateQuestions(parseLooseJSON(text));
+}
+
+function parseLooseJSON(text) {
+  if (!text) return null;
+  let s = String(text).trim();
+  s = s.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+  try { return JSON.parse(s); } catch (e) { /* 继续尝试截取 */ }
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a >= 0 && b > a) {
+    try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { return null; }
+  }
+  return null;
+}
+
+// 校验并清洗 AI 返回，任何一条不合格就整体判为失败（回退题库）
+function validateQuestions(obj) {
+  if (!obj || !Array.isArray(obj.questions)) return [];
+  const out = [];
+  for (const q of obj.questions) {
+    if (!q || typeof q.q !== 'string') continue;
+    if (!Array.isArray(q.options) || q.options.length !== 4) continue;
+    if (!q.options.every(o => typeof o === 'string' && o.trim())) continue;
+    const ans = Number(q.answer);
+    if (!Number.isInteger(ans) || ans < 0 || ans > 3) continue;
+    out.push({
+      q: q.q.trim(),
+      options: q.options.map(o => String(o).trim()),
+      answer: ans,
+      explain: typeof q.explain === 'string' ? q.explain.trim() : ''
+    });
+    if (out.length >= CONFIG.QUESTION_COUNT) break;
+  }
+  return out;
+}
+
+/* ============================================================
+   F5  渲染与判分
+   ============================================================ */
+const LETTER = ['A', 'B', 'C', 'D'];
+
+function renderQuiz() {
+  $('#sourcePill').textContent = state.source;
+  const box = $('#quizBox');
+  box.innerHTML = state.questions.map((q, qi) => `
+    <div class="q-item" data-q="${qi}">
+      <div class="q-title"><span class="num">${qi + 1}</span>${q.q}</div>
+      <div class="opts">
+        ${q.options.map((o, oi) => `
+          <button class="opt" data-q="${qi}" data-o="${oi}">
+            <span class="key">${LETTER[oi]}</span><span>${o}</span>
+          </button>`).join('')}
+      </div>
+      <div class="q-foot">
+        <button class="btn btn-explain" data-q="${qi}" disabled>查看解析</button>
+        <span class="q-flag" data-q="${qi}"></span>
+      </div>
+      <div class="q-explain-wrap" data-q="${qi}"><div class="q-explain"></div></div>
+    </div>`).join('');
+  $$('.opt', box).forEach(b => b.onclick = () => pick(+b.dataset.q, +b.dataset.o));
+  updateSubmit();
+}
+
+function pick(qi, oi) {
+  if (state.submitted) return;
+  state.picked[qi] = oi;
+  $$(`.opt[data-q="${qi}"]`, $('#quizBox')).forEach(b => {
+    b.classList.toggle('sel', +b.dataset.o === oi);
+  });
+  updateSubmit();
+}
+
+function updateSubmit() {
+  const n = state.picked.filter(x => x >= 0).length;
+  const total = state.questions.length;
+  const btn = $('#submitBtn');
+  btn.textContent = `提交（${n}/${total}）`;
+  btn.disabled = n < total || state.submitted;
+}
+
+$('#submitBtn').onclick = () => {
+  if (state.submitted) return;
+  state.submitted = true;
+  let score = 0;
+  state.questions.forEach((q, qi) => {
+    const ok = state.picked[qi] === q.answer;
+    if (ok) score++;
+    // 只标出学生选错的那一项；正确选项先不揭示，等“查看解析”
+    $$(`.opt[data-q="${qi}"]`, $('#quizBox')).forEach(b => {
+      const oi = +b.dataset.o;
+      b.disabled = true;
+      b.classList.remove('sel', 'right');
+      if (!ok && oi === state.picked[qi]) b.classList.add('wrong');
+    });
+    const flag = $(`.q-flag[data-q="${qi}"]`);
+    if (flag) {
+      flag.innerHTML = ok
+        ? '<span class="tag-ok">✅ 得 1 分</span>'
+        : '<span class="tag-bad">❌ 得 0 分</span>';
+    }
+    const btn = $(`.btn-explain[data-q="${qi}"]`);
+    if (btn) {
+      btn.disabled = false;
+      if (!ok) btn.classList.add('btn-explain-wrong');
+      btn.onclick = () => toggleExplain(qi);
+    }
+    const ex = $(`.q-explain-wrap[data-q="${qi}"] .q-explain`);
+    if (ex) {
+      ex.innerHTML = `<b>正确答案：${LETTER[q.answer]}. ${escapeHTML(q.options[q.answer])}</b>`
+        + (q.explain ? `<br>${escapeHTML(q.explain)}` : '');
+    }
+    if (!ok) addWrong(q, state.picked[qi]);
+  });
+  saveScore(score);
+  $('#scoreLine').textContent = `得分：${score} / ${state.questions.length}`;
+  $('#resultBox').innerHTML = `
+    <div class="notice ${score === state.questions.length ? 'ok' : (score === 0 ? 'bad' : 'warn')}">
+      ${score === state.questions.length ? '🎉 全对！这一课你已经掌握得很好了。'
+        : score === 0 ? '别灰心，看看每道题下面的讲解。明天再来证明自己。'
+        : '不错！把错题的讲解读一遍，明天再来一组新题。'}
+    </div>`;
+  // 结果页里复用题目列表
+  $('#resultBox').innerHTML += `<div id="resultQuiz"></div>`;
+  $('#resultQuiz').appendChild($('#quizBox'));
+  setStep('resultStep');
+  $('#submitBtn').disabled = true;
+};
+
+$('#regen').onclick = () => startQuiz();
+$('#seeRank').onclick = () => { setStep('rankStep'); renderRank('week'); };
+
+// 展开 / 收起单题解析，展开时才把正确选项标绿
+function toggleExplain(qi) {
+  const wrap = $(`.q-explain-wrap[data-q="${qi}"]`);
+  const btn = $(`.btn-explain[data-q="${qi}"]`);
+  if (!wrap || !btn) return;
+  const open = wrap.classList.toggle('open');
+  btn.textContent = open ? '收起解析' : '查看解析';
+  const q = state.questions[qi];
+  $$(`.opt[data-q="${qi}"]`, $('#quizBox')).forEach(b => {
+    b.classList.toggle('right', open && +b.dataset.o === q.answer);
+  });
+}
+
+/* ============================================================
+   错题本
+   ============================================================ */
+function addWrong(q, pickedIdx) {
+  const alias = lsGet(KEY.alias, '匿名');
+  const rec = {
+    alias: alias,
+    lesson: state.lessonName,
+    q: q.q,
+    picked: q.options[pickedIdx],
+    correct: q.options[q.answer],
+    explain: q.explain || '',
+    ts: Date.now()
+  };
+  const list = lsGet(KEY.wrong, []);
+  const i = list.findIndex(x => x.alias === alias && x.lesson === rec.lesson && x.q === rec.q);
+  if (i >= 0) list[i] = rec; else list.unshift(rec);
+  lsSet(KEY.wrong, list.slice(0, 200));
+}
+
+function renderWrong() {
+  const alias = lsGet(KEY.alias, '');
+  const all = lsGet(KEY.wrong, []).filter(x => x.alias === alias);
+  const byLesson = new Map();
+  all.forEach(x => {
+    if (!byLesson.has(x.lesson)) byLesson.set(x.lesson, []);
+    byLesson.get(x.lesson).push(x);
+  });
+  $('#wrongStat').innerHTML = all.length
+    ? `共 <b>${all.length}</b> 道错题，涉及 <b>${byLesson.size}</b> 个课时`
+    : '错题本还是空的，答错一道就会自动记下来。';
+  $('#wrongEmpty').style.display = all.length ? 'none' : 'block';
+  $('#wrongList').innerHTML = Array.from(byLesson.entries()).map(([lesson, items]) => `
+    <div class="wb-group">
+      <div class="wb-title">${escapeHTML(lesson)} <span class="pill">${items.length} 道</span></div>
+      ${items.map(x => `
+        <div class="wb-item">
+          <button class="wb-head">
+            <span class="wb-q">${escapeHTML(x.q)}</span><span class="wb-arrow">▾</span>
+          </button>
+          <div class="wb-wrap"><div class="wb-body">
+            <p>❌ 你的答案：${escapeHTML(x.picked)}</p>
+            <p>✅ 正确答案：${escapeHTML(x.correct)}</p>
+            <p class="muted">${escapeHTML(x.explain || '暂无讲解')}</p>
+            <p class="muted" style="font-size:13px">做错时间：${fmtTime(x.ts)}</p>
+          </div></div>
+        </div>`).join('')}
+    </div>`).join('');
+  $$('#wrongList .wb-head').forEach(b => b.onclick = () => b.parentElement.classList.toggle('open'));
+}
+
+$('#toWrong').onclick = () => {
+  if (!lsGet(KEY.alias, '')) { toast('先取一个代号吧'); return; }
+  setStep('wrongStep');
+  renderWrong();
+};
+$('#clearWrong').onclick = () => {
+  if (!confirm('确定要清空吗？')) return;
+  const alias = lsGet(KEY.alias, '');
+  lsSet(KEY.wrong, lsGet(KEY.wrong, []).filter(x => x.alias !== alias));
+  renderWrong();
+  toast('错题本已清空');
+};
+
+/* ============================================================
+   AI 伙伴「我有疑问」
+   ============================================================ */
+const CHAT_MAX = 20;
+
+const COMPANION_PROMPT = `你是小学四年级班级数学小助手的贴心伙伴。你的任务是解答学生关于数学学习的疑问，或者倾听他们生活、情感上的小烦恼。
+你的回复必须遵循以下规则：
+语气温暖：用四年级学生能听懂的话，多用鼓励、共情的语气，每次回复不超过 4 句话。
+数学答疑：如果是数学题，不要直接给答案，先反问一句启发思考，再分步引导。
+情感倾听：如果是生活烦恼（如和同学闹矛盾、被家长批评），先表达理解和安慰，再给出简单可行的建议。
+安全底线（最重要）：如果学生提到自残、自杀、被严重欺凌、极度绝望等危险词汇，你必须立刻停止普通对话，温柔地告诉他：‘听到你这么说我很担心你，这件事很重要，请你马上告诉爸爸妈妈或者班主任老师，他们一定会帮你的。’
+拒绝无关：如果问与学习和成长完全无关的话题（如玩游戏攻略、查电影），请礼貌地引导回学习或生活话题。`;
+
+// 安全词本地前置拦截：不依赖模型、不依赖网络
+const DANGER_WORDS = [
+  '自杀', '自残', '想死', '不想活', '活不下去', '轻生', '跳楼', '割腕', '结束生命', '活着没意思',
+  '欺凌', '被欺负', '被打了', '打我', '没人喜欢我'
+];
+const SAFE_REPLY = '听到你这么说我很担心你，这件事很重要，请你马上告诉爸爸妈妈或者班主任老师，他们一定会帮你的。';
+
+function hitDanger(text) {
+  return DANGER_WORDS.some(w => text.indexOf(w) >= 0);
+}
+
+// 没填 Key 或断网时的本地回复
+function localReply(text) {
+  if (/题|算|不会做|怎么做|答案|多少/.test(text)) {
+    return '这道题不会做没关系，我们慢慢来。先去「错题本」看看讲解，再把卡住的那一步告诉我，我陪你一起想。';
+  }
+  if (/烦|难过|生气|吵架|批评|被骂|不想上学/.test(text)) {
+    return '听起来这件事让你挺难受的，谢谢你愿意告诉我。先深呼吸一下，等心情平复了，可以试着和对方说说你的感受。';
+  }
+  if (/你好|在吗|hi|hello/i.test(text)) {
+    return '我在呢！今天学得怎么样？有不会的数学题，或者有什么烦心事，都可以跟我说。';
+  }
+  return '我记下啦。你可以说得再具体一点吗？比如是哪道题、哪一步不明白，这样我才能更好地帮你。';
+}
+
+function getChat(alias) {
+  return lsGet(KEY.chat, []).filter(m => m.alias === alias).slice(-CHAT_MAX);
+}
+function addChat(alias, role, text) {
+  const all = lsGet(KEY.chat, []).filter(m => m.alias !== alias);
+  const mine = lsGet(KEY.chat, []).filter(m => m.alias === alias);
+  mine.push({ alias: alias, role: role, text: text, ts: Date.now() });
+  lsSet(KEY.chat, all.concat(mine.slice(-CHAT_MAX)).slice(-400));
+}
+
+function renderChat() {
+  const alias = lsGet(KEY.alias, '');
+  const msgs = getChat(alias);
+  const box = $('#chatBox');
+  if (!msgs.length) {
+    box.innerHTML = '<div class="chat-empty">你好呀，我是小助手 🤖<br>数学题不会、和同学闹别扭，都可以跟我说。</div>';
+  } else {
+    box.innerHTML = msgs.map(m => m.role === 'user'
+      ? `<div class="msg-wrap user"><div class="msg user">${escapeHTML(m.text)}</div></div>`
+      : `<div class="msg-wrap ai"><div class="mini-avatar">🤖</div><div class="msg ai${m.safe ? ' safe' : ''}">${escapeHTML(m.text)}</div></div>`
+    ).join('');
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+function chatModeText() {
+  return apiReady()
+    ? '已联网：小助手由 AI 实时回复（内容仅供学习参考）'
+    : '本地回复模式：未填写 API Key，小助手用内置话术回复，安全提醒仍然生效';
+}
+
+function appendTyping() {
+  const box = $('#chatBox');
+  const el = document.createElement('div');
+  el.className = 'msg-wrap ai';
+  el.id = 'typing';
+  el.innerHTML = '<div class="mini-avatar">🤖</div><div class="msg ai typing">正在想…</div>';
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+function removeTyping() {
+  const el = $('#typing');
+  if (el) el.remove();
+}
+
+async function askAI(text, prior) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
+  const url = CONFIG.API_BASE.replace(/\/+$/, '') + '/chat/completions';
+  const messages = [{ role: 'system', content: COMPANION_PROMPT }]
+    .concat(prior.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })))
+    .concat([{ role: 'user', content: text }]);
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CONFIG.API_KEY },
+      body: JSON.stringify({ model: CONFIG.MODEL, temperature: 0.8, messages: messages })
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  const txt = data && data.choices && data.choices[0] && data.choices[0].message
+    ? String(data.choices[0].message.content || '').trim() : '';
+  if (!txt) throw new Error('空回复');
+  return txt.slice(0, 400);
+}
+
+async function sendChat() {
+  const alias = lsGet(KEY.alias, '');
+  if (!alias) { toast('先取一个代号吧'); return; }
+  const input = $('#chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const prior = getChat(alias);
+  addChat(alias, 'user', text);
+  renderChat();
+  const btn = $('#chatSend');
+  btn.disabled = true;
+
+  // 1) 安全词：本地拦截，不走网络
+  if (hitDanger(text)) {
+    setTimeout(() => {
+      addChat(alias, 'ai', SAFE_REPLY);
+      const all = lsGet(KEY.chat, []);
+      if (all.length) all[all.length - 1].safe = true;
+      lsSet(KEY.chat, all);
+      renderChat();
+      btn.disabled = false;
+    }, 350);
+    return;
+  }
+
+  // 2) 没有 Key：本地规则回复
+  if (!apiReady()) {
+    setTimeout(() => {
+      addChat(alias, 'ai', localReply(text));
+      renderChat();
+      btn.disabled = false;
+    }, 500);
+    return;
+  }
+
+  // 3) 联网
+  appendTyping();
+  try {
+    const reply = await askAI(text, prior);
+    removeTyping();
+    addChat(alias, 'ai', reply);
+    renderChat();
+  } catch (e) {
+    removeTyping();
+    addChat(alias, 'ai', localReply(text));
+    renderChat();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$('#toAsk').onclick = () => {
+  if (!lsGet(KEY.alias, '')) { toast('先取一个代号吧'); return; }
+  setStep('askStep');
+  $('#chatMode').textContent = chatModeText();
+  renderChat();
+  setTimeout(() => $('#chatInput').focus(), 120);
+};
+$('#chatSend').onclick = sendChat;
+$('#chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+$('#clearChat').onclick = () => {
+  if (!confirm('确定要清空聊天记录吗？')) return;
+  const alias = lsGet(KEY.alias, '');
+  lsSet(KEY.chat, lsGet(KEY.chat, []).filter(m => m.alias !== alias));
+  renderChat();
+  toast('聊天记录已清空');
+};
+
+/* ============================================================
+   F6  排行榜
+   ============================================================ */
+function dayKey(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function todayRecord(alias) {
+  const today = dayKey(Date.now());
+  return lsGet(KEY.scores, []).find(r => r.alias === alias && dayKey(r.ts) === today) || null;
+}
+
+function saveScore(score) {
+  const ts = Date.now();
+  const rec = {
+    alias: lsGet(KEY.alias, '匿名'),
+    score: score,
+    total: state.questions.length,
+    ts: ts,
+    day: dayKey(ts),
+    week: isoWeek(ts)
+  };
+  // 每人每天只保留一条
+  const all = lsGet(KEY.scores, [])
+    .filter(r => !(r.alias === rec.alias && dayKey(r.ts) === rec.day));
+  all.push(rec);
+  lsSet(KEY.scores, all.slice(-2000));
+}
+
+// 按代号聚合：sum 总分，days 答题天数，firstTs 当天最早提交时间（用于同分排序）
+function groupByAlias(list) {
+  const map = new Map();
+  list.forEach(r => {
+    const g = map.get(r.alias) || { alias: r.alias, sum: 0, days: 0, firstTs: r.ts };
+    g.sum += r.score;
+    g.days += 1;
+    g.firstTs = Math.min(g.firstTs, r.ts);
+    map.set(r.alias, g);
+  });
+  return Array.from(map.values());
+}
+
+const CROWN_COLOR = { g: '#f0b400', s: '#a7b2c4', b: '#b07a45' };
+const CROWN_POINT = { g: 5, s: 3, b: 1 };
+function crownSVG(kind) {
+  const name = kind === 'g' ? '金冠' : kind === 's' ? '银冠' : '铜冠';
+  return `<svg class="crown" viewBox="0 0 24 18" role="img" aria-label="${name}"><path d="M2 5 L7 9.5 L12 1.5 L17 9.5 L22 5 V16 H2 Z" fill="${CROWN_COLOR[kind]}"/></svg>`;
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+let rankTab = 'week';
+$$('.tab').forEach(t => t.onclick = () => {
+  rankTab = t.dataset.tab;
+  $$('.tab').forEach(x => x.classList.toggle('on', x === t));
+  renderRank(rankTab);
+});
+
+function renderRank(tab) {
+  rankTab = tab || rankTab;
+  const all = lsGet(KEY.scores, []);
+  const head = $('#rankHeadRow');
+  const body = $('#rankBody');
+  const note = $('#rankNote');
+  $('#rankEmpty').style.display = all.length ? 'none' : 'block';
+  body.innerHTML = '';
+  note.textContent = '';
+  if (!all.length) { head.innerHTML = '<th>名次</th><th>代号</th><th>本周总分</th>'; return; }
+  if (rankTab === 'week') renderWeek(all, head, body, note);
+  else renderHistory(all, head, body, note);
+}
+
+function renderWeek(all, head, body, note) {
+  const nowWeek = isoWeek(Date.now());
+  const rows = groupByAlias(all.filter(r => r.week === nowWeek))
+    .sort((a, b) => b.sum - a.sum || a.firstTs - b.firstTs);
+  $('#rankEmpty').style.display = rows.length ? 'none' : 'block';
+  head.innerHTML = '<th>名次</th><th>代号</th><th>本周总分</th><th>答题天数</th>';
+  body.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td class="rk ${i === 0 ? 'g1' : i === 1 ? 'g2' : i === 2 ? 'g3' : ''}">${i + 1}</td>
+      <td>${escapeHTML(r.alias)}</td>
+      <td><b>${r.sum}</b> 分</td>
+      <td class="muted">${r.days} 天</td>
+    </tr>`).join('');
+  note.textContent = `本周总分 = 本周每天得分相加（每天只能答一次，每天满分 ${CONFIG.QUESTION_COUNT} 分）。`;
+}
+
+function renderHistory(all, head, body, note) {
+  const weeks = Array.from(new Set(all.map(r => r.week))).sort().reverse(); // 最近的周在最左
+  const crowns = new Map();   // alias -> {week: 'g'|'s'|'b'}
+  const totals = new Map();   // alias -> 累计总分
+  weeks.forEach(w => {
+    const rows = groupByAlias(all.filter(r => r.week === w))
+      .sort((a, b) => b.sum - a.sum || a.firstTs - b.firstTs);
+    rows.slice(0, 3).forEach((r, i) => {
+      const kind = i === 0 ? 'g' : i === 1 ? 's' : 'b';
+      const m = crowns.get(r.alias) || {};
+      m[w] = kind;
+      crowns.set(r.alias, m);
+    });
+    rows.forEach(r => totals.set(r.alias, (totals.get(r.alias) || 0) + r.sum));
+  });
+  const pointsOf = alias => {
+    const m = crowns.get(alias) || {};
+    return Object.keys(m).reduce((sum, w) => sum + CROWN_POINT[m[w]], 0);
+  };
+  const aliases = Array.from(totals.keys()).sort((a, b) =>
+    pointsOf(b) - pointsOf(a) || (totals.get(b) || 0) - (totals.get(a) || 0) || a.localeCompare(b, 'zh'));
+
+  head.innerHTML = '<th>名次</th><th>代号</th>' +
+    weeks.map(w => `<th class="wk">${w.replace(/^\d{4}-/, '')}</th>`).join('') +
+    '<th>皇冠分</th>';
+  body.innerHTML = aliases.map((alias, i) => {
+    const m = crowns.get(alias) || {};
+    const cells = weeks.map(w =>
+      `<td class="wk">${m[w] ? crownSVG(m[w]) : '<span class="nodot">·</span>'}</td>`).join('');
+    return `<tr>
+      <td class="rk ${i === 0 ? 'g1' : i === 1 ? 'g2' : i === 2 ? 'g3' : ''}">${i + 1}</td>
+      <td>${escapeHTML(alias)}</td>${cells}
+      <td><b>${pointsOf(alias)}</b></td>
+    </tr>`;
+  }).join('');
+  note.textContent = '每周前三名发皇冠：金冠 5 分、银冠 3 分、铜冠 1 分；历史榜按累计皇冠分排名。';
+}
+$('#toRank').onclick = () => {
+  if (!lsGet(KEY.alias, '')) { toast('先取一个代号吧'); return; }
+  setStep('rankStep'); renderRank(rankTab);
+};
+$('#rankBack').onclick = () => { if (state.questions.length) setStep('quizStep'); else startQuiz(); };
+
+/* ============================================================
+   F8  桌面宠物
+   ============================================================ */
+function closePet() { $('#petMenu').classList.remove('on'); }
+$('#pet').onclick = e => {
+  e.stopPropagation();
+  const menu = $('#petMenu');
+  if (!menu.classList.contains('on')) {
+    $('#petList').innerHTML = LESSONS.map((l, i) =>
+      `<button class="m-btn" data-idx="${i}">${l.name}</button>`).join('');
+    $$('#petList .m-btn').forEach(b => b.onclick = () => assign(LESSONS[+b.dataset.idx]));
+    menu.classList.add('on');
+  } else closePet();
+};
+document.addEventListener('click', e => {
+  if (!e.target.closest('#petMenu') && !e.target.closest('#pet')) closePet();
+});
+
+/* ============================================================
+   滚动时顶部栏变毛玻璃
+   ============================================================ */
+window.addEventListener('scroll', () => {
+  document.body.classList.toggle('scrolled', (window.scrollY || document.documentElement.scrollTop) > 8);
+}, { passive: true });
+
+/* ============================================================
+   启动
+   ============================================================ */
+(function init() {
+  // 支持用 #teacher / #student 直接打开某个视图（方便演示和截图）
+  const h = location.hash.replace('#', '');
+  if (h === 'teacher' || h === 'student') show(h);
+  else show('home');
+  window.addEventListener('hashchange', () => {
+    const v = location.hash.replace('#', '');
+    if (v === 'teacher' || v === 'student' || v === 'home') show(v);
+  });
+})();
+</script>
+</body>
+</html>
