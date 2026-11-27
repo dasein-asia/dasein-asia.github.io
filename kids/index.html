@@ -236,6 +236,8 @@
   .seg{display:inline-flex;background:#eef3ff;border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px}
   .seg-btn{padding:7px 18px;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:600}
   .seg-btn.on{background:#fff;color:var(--primary-dark);box-shadow:0 2px 8px rgba(47,109,246,.18)}
+  .key-row{display:flex;gap:8px;margin-top:10px}
+  .key-row .input{flex:1;font-size:15px;padding:9px 12px;letter-spacing:0}
   /* 排行榜 */
   .table-scroll{overflow-x:auto;margin:0 -2px;padding-bottom:4px}
   #rankTable{min-width:100%}
@@ -315,7 +317,9 @@
 
   /* 错题本 */
   .wb-group{margin-bottom:18px}
-  .wb-title{display:flex;align-items:center;gap:10px;font-weight:700;margin:0 0 10px;font-size:16px}
+  .wb-title{display:flex;align-items:flex-start;gap:10px;font-weight:700;margin:0 0 10px;font-size:16px}
+  .wb-title .pill{flex:none;white-space:nowrap}
+  #wrongStep .q-head h2, #askStep .q-head h2, #rankStep .q-head h2{white-space:nowrap}
   .wb-item{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fbfcff;overflow:hidden}
   .wb-head{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;
     padding:12px 14px;background:transparent;text-align:left;color:var(--ink);font-size:15px}
@@ -384,7 +388,7 @@
     </div>
     <div class="card hero">
       <h1>选择你的身份</h1>
-      <p class="sub">老师布置课时，学生在线练习，成绩自动记录</p>
+      <p class="sub">老师布置课时，学生当堂练习，做完马上知道对不对</p>
       <div class="entries">
         <button class="entry" data-go="teacher">
           <span class="ico">👩‍🏫</span>
@@ -423,6 +427,10 @@
           </div>
         </div>
         <div class="muted" id="modeHint"></div>
+        <div class="key-row">
+          <input id="keyInput" class="input" type="password" placeholder="AI 密钥（只存这台电脑，不会上传）" autocomplete="off">
+          <button class="btn btn-sm" id="keySave">保存</button>
+        </div>
         <button class="btn btn-ghost" id="resetToday" style="margin-top:10px">重置今日答题记录</button>
       </div>
 
@@ -450,7 +458,7 @@
     <!-- 代号 -->
     <div id="aliasStep" class="card field">
       <h2 class="center">先取一个代号吧</h2>
-      <p class="muted center">建议用「名字 + 数字」，如 小明01；成绩只保存在这台电脑上</p>
+      <p class="muted center">用「名字 + 数字」起个代号，比如 小明01，不写全名。成绩只保存在这台电脑上。</p>
       <label for="aliasInput">我的代号</label>
       <input id="aliasInput" class="input" maxlength="8" placeholder="2-8 位，如 小明01" autocomplete="off">
       <div class="hint">中文、字母、数字、下划线都可以：小明01、xingxing_8、数学达人2</div>
@@ -474,7 +482,7 @@
         <div id="quizMount"><div id="quizBox"></div></div>
         <div class="row between q-actions">
           <button class="btn btn-ghost" id="regen">换一组题</button>
-          <button class="btn btn-primary" id="submitBtn" disabled>提交（0/3）</button>
+          <button class="btn btn-primary" id="submitBtn" disabled>提交</button>
         </div>
       </div>
     </div>
@@ -484,7 +492,7 @@
       <div class="card">
         <div class="q-head">
           <h2 style="margin:0">答题结果</h2>
-          <div class="score-big" id="scoreLine">得分：0 / 3</div>
+          <div class="score-big" id="scoreLine">得分：—</div>
         </div>
         <div id="resultBox"></div>
         <div class="row between mt">
@@ -521,7 +529,10 @@
       <div class="card">
         <div class="q-head">
           <h2 style="margin:0">📕 错题本</h2>
-          <button class="btn btn-ghost btn-sm" id="clearWrong">清空错题本</button>
+          <div class="row">
+            <button class="btn btn-ghost btn-sm" id="wrongBack">← 返回答题</button>
+            <button class="btn btn-ghost btn-sm" id="clearWrong">清空错题本</button>
+          </div>
         </div>
         <div class="notice" id="wrongStat"></div>
         <div id="wrongList"></div>
@@ -534,7 +545,10 @@
       <div class="card">
         <div class="q-head">
           <h2 style="margin:0">🤖 我有疑问</h2>
-          <button class="btn btn-ghost btn-sm" id="clearChat">清空聊天记录</button>
+          <div class="row">
+            <button class="btn btn-ghost btn-sm" id="askBack">← 返回答题</button>
+            <button class="btn btn-ghost btn-sm" id="clearChat">清空聊天记录</button>
+          </div>
         </div>
         <div id="chatBox" class="chat-box"></div>
         <div class="chat-input">
@@ -576,11 +590,21 @@
    0. 配置区（唯一需要修改的地方）
    API_KEY 默认是占位符 00000000000，比赛现场替换成真实 Key 即可
    未填写真实 Key 时，无论选哪种出题方式都会自动使用本地题库
-   可用模型：deepseek-chat / deepseek-reasoner 等 OpenAI 兼容接口
+
+   默认接 DeepSeek（浏览器可直接调用，已实测）。密钥建议在“老师端”里填，
+   只存在本机浏览器，不会跟着代码交出去；也可以直接写在下面对应位置。
+
+   换别家时只改 API_BASE / MODEL 两行，要求：
+   1) 提供 OpenAI 兼容的 /chat/completions 接口
+   2) 允许浏览器跨域（CORS）
+   可用示例（阿里云百炼，有免费额度）：
+     API_BASE: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+     MODEL:    'qwen-turbo'
+   注意：智谱 bigmodel 目前不返回 CORS 头，浏览器里调不通。
    ============================================================ */
 const CONFIG = {
   API_BASE: 'https://api.deepseek.com',
-  API_KEY: '00000000000',          // 占位符，比赛时替换成真实 Key
+  API_KEY: '00000000000',          // 密钥建议在老师端填写，这里留占位符即可
   API_KEY_PLACEHOLDER: '00000000000',
   MODEL: 'deepseek-chat',
   QUESTION_COUNT: 10,
@@ -782,7 +806,8 @@ const KEY = {
   log: 'mathbot_log',
   mode: 'mathbot_mode',
   wrong: 'mathbot_wrongbook',
-  chat: 'mathbot_chat'
+  chat: 'mathbot_chat',
+  apiKey: 'mathbot_apikey'
 };
 
 function lsGet(k, d) {
@@ -824,9 +849,12 @@ function shuffle(a) {
 // 打乱选项顺序并重算正确答案下标（防止答案总在 A）
 function shuffleOptions(list) {
   return list.map(item => {
-    const correctText = item.options[item.answer];
-    const opts = shuffle(item.options.slice());
-    return Object.assign({}, item, { options: opts, answer: opts.indexOf(correctText) });
+    const order = item.options.map((_, i) => i);
+    shuffle(order);
+    return Object.assign({}, item, {
+      options: order.map(i => item.options[i]),
+      answer: order.indexOf(item.answer)
+    });
   });
 }
 function findLesson(name) {
@@ -942,21 +970,47 @@ $('#clearLog').onclick = () => {
 /* ---- 出题方式：本地题库 / 联网 AI ---- */
 const MODE_BANK = 'bank', MODE_API = 'api';
 function getMode() { return lsGet(KEY.mode, MODE_BANK) === MODE_API ? MODE_API : MODE_BANK; }
-function apiReady() {
-  return !!CONFIG.API_KEY && CONFIG.API_KEY !== CONFIG.API_KEY_PLACEHOLDER;
+function apiKeyValue() {
+  const saved = lsGet(KEY.apiKey, '');
+  return saved || CONFIG.API_KEY;
 }
+function apiReady() {
+  const k = apiKeyValue();
+  return !!k && k !== CONFIG.API_KEY_PLACEHOLDER && k.length > 10;
+}
+function saveApiKey(v) {
+  lsSet(KEY.apiKey, v);
+  renderMode();
+}
+// 现场没网就直接用题库，不干等接口超时
+function onLine() { return navigator.onLine !== false; }
 function renderMode() {
   const m = getMode();
   $$('#modeSeg .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
   const hint = $('#modeHint');
   if (m === MODE_API && !apiReady()) {
-    hint.textContent = '⚠️ 还没有填写真实的 API Key（当前是占位符），学生答题时会自动使用本地题库。';
+    hint.textContent = '⚠️ 还没有密钥。把密钥填在下面（只存本机），学生就能用 AI 出题。';
   } else if (m === MODE_API) {
-    hint.textContent = '联网出题：每次由 AI 现场生成题目，网络异常时自动回退本地题库。';
+    hint.textContent = '联网出题：每次让 AI 现场想 10 道题，网络不好会自动换成题库。' +
+      (lsGet(KEY.apiKey, '') ? '（已保存密钥）' : '');
   } else {
-    hint.textContent = '本地题库：不联网也能用，每课时 10 道随机抽取，稳定不出错。';
+    hint.textContent = '本地题库：不联网也能用，每课 10 道随机抽，稳定不出错。' +
+      (lsGet(KEY.apiKey, '') ? '（已保存密钥）' : '');
   }
 }
+$('#keySave').onclick = () => {
+  const v = $('#keyInput').value.trim();
+  if (!v) {
+    saveApiKey('');
+    $('#keyInput').value = '';
+    toast('已清除这台电脑上的密钥');
+    return;
+  }
+  if (v.length < 12) { toast('密钥好像不完整，再检查一下'); return; }
+  saveApiKey(v);
+  $('#keyInput').value = '';
+  toast('密钥已保存，只存在这台电脑上');
+};
 $$('#modeSeg .seg-btn').forEach(b => b.onclick = () => {
   lsSet(KEY.mode, b.dataset.mode);
   renderMode();
@@ -1111,14 +1165,17 @@ function buildPrompt(lesson) {
 async function loadQuestions(found) {
   const { lesson } = found;
   if (getMode() !== 'api') {
-    return useBank(found, '本地题库');
+    return useBank(found, '题库出题');
   }
   if (!apiReady()) {
-    return useBank(found, '本地题库（Key 未填写）');
+    return useBank(found, '题库出题');
+  }
+  if (!onLine()) {
+    return useBank(found, '题库出题（没网）');
   }
   try {
     const qs = await askAI(lesson);
-    if (!qs.length) throw new Error('AI 没有返回题目');
+    if (qs.length < CONFIG.QUESTION_COUNT) throw new Error('AI 返回的题目数量不足');
     state.questions = shuffleOptions(qs).slice(0, CONFIG.QUESTION_COUNT);
     state.picked = new Array(state.questions.length).fill(-1);
     state.submitted = false;
@@ -1151,12 +1208,12 @@ async function askAI(lesson) {
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + CONFIG.API_KEY
+        'Authorization': 'Bearer ' + apiKeyValue()
       },
       body: JSON.stringify({
         model: CONFIG.MODEL,
         temperature: 0.8,
-        response_format: { type: 'json_object' },
+        max_tokens: 2000,
         messages: [
           { role: 'system', content: '你只输出 JSON，不输出任何其他文字。' },
           { role: 'user', content: buildPrompt(lesson) }
@@ -1177,10 +1234,21 @@ function parseLooseJSON(text) {
   if (!text) return null;
   let s = String(text).trim();
   s = s.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-  try { return JSON.parse(s); } catch (e) { /* 继续尝试截取 */ }
+  try {
+    const parsed = JSON.parse(s);
+    return Array.isArray(parsed) ? { questions: parsed } : parsed;
+  } catch (e) { /* 继续尝试截取 */ }
   const a = s.indexOf('{'), b = s.lastIndexOf('}');
   if (a >= 0 && b > a) {
-    try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { return null; }
+    try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { /* 继续 */ }
+  }
+  // 有的模型会直接返回数组，包一层
+  const la = s.indexOf('['), lb = s.lastIndexOf(']');
+  if (la >= 0 && lb > la) {
+    try {
+      const arr = JSON.parse(s.slice(la, lb + 1));
+      if (Array.isArray(arr)) return { questions: arr };
+    } catch (e) { /* 忽略 */ }
   }
   return null;
 }
@@ -1443,8 +1511,8 @@ function renderChat() {
 
 function chatModeText() {
   return apiReady()
-    ? '已联网：小助手由 AI 实时回复（内容仅供学习参考）'
-    : '本地回复模式：未填写 API Key，小助手用内置话术回复，安全提醒仍然生效';
+    ? '小助手已经连上网啦，回答是 AI 现想的，仅供参考哦'
+    : '现在还没联网，小助手先用自己想好的话回答。安全提醒一直有效。';
 }
 
 function appendTyping() {
@@ -1461,7 +1529,7 @@ function removeTyping() {
   if (el) el.remove();
 }
 
-async function askAI(text, prior) {
+async function askCompanion(text, prior) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
   const url = CONFIG.API_BASE.replace(/\/+$/, '') + '/chat/completions';
@@ -1473,7 +1541,7 @@ async function askAI(text, prior) {
     res = await fetch(url, {
       method: 'POST',
       signal: ctrl.signal,
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CONFIG.API_KEY },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKeyValue() },
       body: JSON.stringify({ model: CONFIG.MODEL, temperature: 0.8, messages: messages })
     });
   } finally {
@@ -1498,6 +1566,7 @@ async function sendChat() {
   addChat(alias, 'user', text);
   renderChat();
   const btn = $('#chatSend');
+  if (btn.disabled) return;
   btn.disabled = true;
 
   // 1) 安全词：本地拦截，不走网络
@@ -1513,8 +1582,8 @@ async function sendChat() {
     return;
   }
 
-  // 2) 没有 Key：本地规则回复
-  if (!apiReady()) {
+  // 2) 没有 Key 或没网：本地规则回复
+  if (!apiReady() || !onLine()) {
     setTimeout(() => {
       addChat(alias, 'ai', localReply(text));
       renderChat();
@@ -1526,7 +1595,7 @@ async function sendChat() {
   // 3) 联网
   appendTyping();
   try {
-    const reply = await askAI(text, prior);
+    const reply = await askCompanion(text, prior);
     removeTyping();
     addChat(alias, 'ai', reply);
     renderChat();
@@ -1688,7 +1757,14 @@ $('#toRank').onclick = () => {
   if (!lsGet(KEY.alias, '')) { toast('先取一个代号吧'); return; }
   setStep('rankStep'); renderRank(rankTab);
 };
-$('#rankBack').onclick = () => { if (state.questions.length) setStep('quizStep'); else startQuiz(); };
+function backToQuiz() {
+  // 答到一半：保留已选的答案；已交卷或没开始：按“今天是否答过”重新进入
+  if (state.questions.length && !state.submitted) setStep('quizStep');
+  else startQuiz();
+}
+$('#rankBack').onclick = backToQuiz;
+$('#wrongBack').onclick = backToQuiz;
+$('#askBack').onclick = backToQuiz;
 
 /* ============================================================
    F8  桌面宠物
