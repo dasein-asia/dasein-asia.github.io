@@ -1591,6 +1591,7 @@ async function sendChat() {
       if (all.length) all[all.length - 1].safe = true;
       lsSet(KEY.chat, all);
       renderChat();
+      $('#chatMode').textContent = '这句话是小助手在本机直接给出的提醒（不经过网络）。';
       btn.disabled = false;
     }, 350);
     return;
@@ -1601,6 +1602,7 @@ async function sendChat() {
     setTimeout(() => {
       addChat(alias, 'ai', localReply(text));
       renderChat();
+      $('#chatMode').textContent = '这次没连上 AI，先用小助手自己想好的话回答。过一会儿再试试。';
       btn.disabled = false;
     }, 500);
     return;
@@ -1613,10 +1615,12 @@ async function sendChat() {
     removeTyping();
     addChat(alias, 'ai', reply);
     renderChat();
+    $('#chatMode').textContent = '刚刚这条是 AI 回复的，仅供参考哦。';
   } catch (e) {
     removeTyping();
     addChat(alias, 'ai', localReply(text));
     renderChat();
+    $('#chatMode').textContent = 'AI 这次没接上，先用了本地的回答。过一会儿再试试。';
   } finally {
     btn.disabled = false;
   }
