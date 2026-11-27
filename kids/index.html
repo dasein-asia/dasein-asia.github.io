@@ -588,7 +588,7 @@
 <script>
 /* ============================================================
    0. 配置区（唯一需要修改的地方）
-   API_KEY_B64 是内置密钥（base64），老师端也可以另外填一个覆盖它
+   密钥不写进代码：演示前在老师端点一次“AI 密钥”，只存本机浏览器
    密钥无效或没网时，会自动改用本地题库，不影响使用
 
    默认接「智谱 GLM」的 OpenAI 兼容接口（glm-4-flash 免费），已实测可用。
@@ -604,7 +604,7 @@
    ============================================================ */
 const CONFIG = {
   API_BASE: 'https://open.bigmodel.cn/api/paas/v4/chat/completions/',
-  API_KEY_B64: 'NzNkNTdjNTc5ZDg2NGQxNjgzOTIyNjFiMGRiOTg1NTkubmNBU3EwdDVtTzJxcXNMaA==',   // 内置密钥（base64 编码，防止被网页爬虫直接扫到）
+  API_KEY_B64: '',      // 密钥不写进代码；在老师端点“AI 密钥”填一次，只存本机浏览器
   API_KEY_PLACEHOLDER: '00000000000',
   MODEL: 'glm-4-flash',
   REASONING_EFFORT: '',      // 只有思考类模型(如 deepseek-flash)才需要填 'low'
