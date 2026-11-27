@@ -604,9 +604,10 @@
    ============================================================ */
 const CONFIG = {
   API_BASE: 'https://api.deepseek.com',
-  API_KEY: '00000000000',          // 密钥建议在老师端填写，这里留占位符即可
+  API_KEY: 'sk-238417c249f64b0e9214e5310a10991d',          // 已内置密钥；如失效可在老师端重新填
   API_KEY_PLACEHOLDER: '00000000000',
-  MODEL: 'deepseek-chat',
+  MODEL: 'deepseek-flash',
+  REASONING_EFFORT: 'low',   // deepseek-flash 是思考模型，low 更快更省；换别的模型时删掉这行
   QUESTION_COUNT: 10,
   TEACHER_PASSWORD: '000000',
   TIMEOUT_MS: 25000
@@ -1213,7 +1214,8 @@ async function askAI(lesson) {
       body: JSON.stringify({
         model: CONFIG.MODEL,
         temperature: 0.8,
-        max_tokens: 2000,
+        max_tokens: 4000,
+        ...(CONFIG.REASONING_EFFORT ? { reasoning_effort: CONFIG.REASONING_EFFORT } : {}),
         messages: [
           { role: 'system', content: '你只输出 JSON，不输出任何其他文字。' },
           { role: 'user', content: buildPrompt(lesson) }
@@ -1542,7 +1544,10 @@ async function askCompanion(text, prior) {
       method: 'POST',
       signal: ctrl.signal,
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKeyValue() },
-      body: JSON.stringify({ model: CONFIG.MODEL, temperature: 0.8, messages: messages })
+      body: JSON.stringify(Object.assign(
+        { model: CONFIG.MODEL, temperature: 0.8, messages: messages },
+        CONFIG.REASONING_EFFORT ? { reasoning_effort: CONFIG.REASONING_EFFORT } : {}
+      ))
     });
   } finally {
     clearTimeout(timer);
