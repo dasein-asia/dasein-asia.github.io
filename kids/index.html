@@ -1184,7 +1184,8 @@ async function loadQuestions(found) {
     renderQuiz();
   } catch (err) {
     console.warn('[出题失败，改用本地题库]', err);
-    useBank(found, '本地题库（AI 暂不可用）');
+    useBank(found, '题库出题（AI 不可用）');
+    toast('AI 这次没连上，先用题库出题');
   }
 }
 
