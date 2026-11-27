@@ -591,23 +591,22 @@
    API_KEY_B64 是内置密钥（base64），老师端也可以另外填一个覆盖它
    密钥无效或没网时，会自动改用本地题库，不影响使用
 
-   默认接「智谱 GLM」的 OpenAI 兼容接口（glm-4-flash 免费），已实测可用。
-   注意：智谱的地址必须带结尾的斜杠（.../chat/completions/），
-   不带斜杠时服务端不返回 CORS 头，浏览器会被拦。
+   默认接 DeepSeek（deepseek-flash），浏览器可直接调用，已实测可用。
 
    换别家时只改 API_BASE / MODEL 两行，要求：
    1) OpenAI 兼容的 /chat/completions 接口
    2) 允许浏览器跨域（CORS）
    可用示例：
-     DeepSeek：'https://api.deepseek.com' + 'deepseek-flash'
+     智谱：'https://open.bigmodel.cn/api/paas/v4/chat/completions/' + 'glm-4-flash'
+           （注意结尾斜杠不能少，否则没有 CORS 头）
      阿里百炼：'https://dashscope.aliyuncs.com/compatible-mode/v1' + 'qwen-turbo'
    ============================================================ */
 const CONFIG = {
-  API_BASE: 'https://open.bigmodel.cn/api/paas/v4/chat/completions/',
-  API_KEY_B64: 'NzNkNTdjNTc5ZDg2NGQxNjgzOTIyNjFiMGRiOTg1NTkubmNBU3EwdDVtTzJxcXNMaA==',   // 内置密钥（base64 编码，防止被网页爬虫直接扫到）
+  API_BASE: 'https://api.deepseek.com',
+  API_KEY_B64: 'c2stZjVhY2VmMTU0ZWI4NGMwODhlZjc4ZDBmYTgxYWQ4OGE=',   // 内置密钥（base64 编码，防止被网页爬虫直接扫到）
   API_KEY_PLACEHOLDER: '00000000000',
-  MODEL: 'glm-4-flash',
-  REASONING_EFFORT: '',      // 只有思考类模型(如 deepseek-flash)才需要填 'low'
+  MODEL: 'deepseek-flash',
+  REASONING_EFFORT: 'low',   // deepseek-flash 是思考模型，low 更快更省
   QUESTION_COUNT: 10,
   TEACHER_PASSWORD: '000000',
   TIMEOUT_MS: 25000
