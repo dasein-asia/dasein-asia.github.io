@@ -591,23 +591,23 @@
    API_KEY_B64 是内置密钥（base64），老师端也可以另外填一个覆盖它
    密钥无效或没网时，会自动改用本地题库，不影响使用
 
-   默认接 DeepSeek（浏览器可直接调用，已实测）。密钥建议在“老师端”里填，
-   只存在本机浏览器，不会跟着代码交出去；也可以直接写在下面对应位置。
+   默认接「智谱 GLM」的 OpenAI 兼容接口（glm-4-flash 免费），已实测可用。
+   注意：智谱的地址必须带结尾的斜杠（.../chat/completions/），
+   不带斜杠时服务端不返回 CORS 头，浏览器会被拦。
 
    换别家时只改 API_BASE / MODEL 两行，要求：
-   1) 提供 OpenAI 兼容的 /chat/completions 接口
+   1) OpenAI 兼容的 /chat/completions 接口
    2) 允许浏览器跨域（CORS）
-   可用示例（阿里云百炼，有免费额度）：
-     API_BASE: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-     MODEL:    'qwen-turbo'
-   注意：智谱 bigmodel 目前不返回 CORS 头，浏览器里调不通。
+   可用示例：
+     DeepSeek：'https://api.deepseek.com' + 'deepseek-flash'
+     阿里百炼：'https://dashscope.aliyuncs.com/compatible-mode/v1' + 'qwen-turbo'
    ============================================================ */
 const CONFIG = {
-  API_BASE: 'https://api.deepseek.com',
-  API_KEY_B64: 'c2stMjM4NDE3YzI0OWY2NGIwZTkyMTRlNTMxMGExMDk5MWQ=',   // 内置密钥（base64 编码，防止被网页爬虫直接扫到）
+  API_BASE: 'https://open.bigmodel.cn/api/paas/v4/chat/completions/',
+  API_KEY_B64: 'NzNkNTdjNTc5ZDg2NGQxNjgzOTIyNjFiMGRiOTg1NTkubmNBU3EwdDVtTzJxcXNMaA==',   // 内置密钥（base64 编码，防止被网页爬虫直接扫到）
   API_KEY_PLACEHOLDER: '00000000000',
-  MODEL: 'deepseek-flash',
-  REASONING_EFFORT: 'low',   // deepseek-flash 是思考模型，low 更快更省；换别的模型时删掉这行
+  MODEL: 'glm-4-flash',
+  REASONING_EFFORT: '',      // 只有思考类模型(如 deepseek-flash)才需要填 'low'
   QUESTION_COUNT: 10,
   TEACHER_PASSWORD: '000000',
   TIMEOUT_MS: 25000
@@ -971,6 +971,11 @@ $('#clearLog').onclick = () => {
 /* ---- 出题方式：本地题库 / 联网 AI ---- */
 const MODE_BANK = 'bank', MODE_API = 'api';
 function getMode() { return lsGet(KEY.mode, MODE_BANK) === MODE_API ? MODE_API : MODE_BANK; }
+// 兼容两种写法：填服务根地址，或直接填完整的 .../chat/completions
+function apiUrl() {
+  const b = CONFIG.API_BASE.replace(/\/+$/, '');
+  return /\/chat\/completions$/.test(b) ? b + '/' : b + '/chat/completions';
+}
 function builtinKey() {
   try { return atob(CONFIG.API_KEY_B64 || ''); } catch (e) { return ''; }
 }
@@ -1205,7 +1210,7 @@ function useBank(found, label) {
 async function askAI(lesson) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
-  const url = CONFIG.API_BASE.replace(/\/+$/, '') + '/chat/completions';
+  const url = apiUrl();
   let res;
   try {
     res = await fetch(url, {
@@ -1538,7 +1543,7 @@ function removeTyping() {
 async function askCompanion(text, prior) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
-  const url = CONFIG.API_BASE.replace(/\/+$/, '') + '/chat/completions';
+  const url = apiUrl();
   const messages = [{ role: 'system', content: COMPANION_PROMPT }]
     .concat(prior.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })))
     .concat([{ role: 'user', content: text }]);
